@@ -1,7 +1,7 @@
 /**
  * components/ReliabilityDiagram.tsx
  *
- * The standard calibration picture: x = mean predicted confidence per bucket,
+ * The standard calibration picture: x = Predicted confidence per bucket,
  * y = empirical accuracy in that bucket. Perfect calibration is the diagonal.
  * Points above the line = under-confident, below = over-confident. Marker size
  * encodes bucket count so a bucket of n=2 doesn't look as authoritative as n=80.
@@ -12,7 +12,7 @@
 
 import type { CalibrationReport } from "@/lib/metrics";
 
-const SLOTS = ["var(--cat-1)", "var(--cat-2)", "var(--cat-3)", "var(--cat-4)", "var(--cat-5)", "var(--cat-6)", "var(--cat-7)", "var(--cat-8)"];
+const SLOTS = ["var(--violet)", "var(--cyan)", "var(--orange)", "var(--green)", "var(--red)", "var(--purple)", "var(--blue)", "var(--text-2)"];
 
 export function ReliabilityDiagram({ reports }: { reports: { group: string; calibration: CalibrationReport }[] }) {
   const W = 420, H = 420, P = 44;
@@ -26,18 +26,18 @@ export function ReliabilityDiagram({ reports }: { reports: { group: string; cali
         {/* grid */}
         {[0, 0.2, 0.4, 0.6, 0.8, 1].map((t) => (
           <g key={t}>
-            <line x1={sx(t)} y1={sy(0)} x2={sx(t)} y2={sy(1)} stroke="var(--grid)" />
-            <line x1={sx(0)} y1={sy(t)} x2={sx(1)} y2={sy(t)} stroke="var(--grid)" />
+            <line x1={sx(t)} y1={sy(0)} x2={sx(t)} y2={sy(1)} stroke="var(--border)" />
+            <line x1={sx(0)} y1={sy(t)} x2={sx(1)} y2={sy(t)} stroke="var(--border)" />
             <text x={sx(t)} y={H - P + 16} fontSize="11" textAnchor="middle" fill="var(--muted)" className="tabular">{t.toFixed(1)}</text>
             <text x={P - 8} y={sy(t) + 4} fontSize="11" textAnchor="end" fill="var(--muted)" className="tabular">{t.toFixed(1)}</text>
           </g>
         ))}
         {/* diagonal */}
         <line x1={sx(0)} y1={sy(0)} x2={sx(1)} y2={sy(1)} stroke="var(--muted)" strokeDasharray="4 4" strokeWidth="1.5" />
-        <text x={sx(0.62)} y={sy(0.58)} fontSize="11" fill="var(--muted)" transform={`rotate(-45 ${sx(0.62)} ${sy(0.58)})`}>perfect calibration</text>
+        <text x={sx(0.12)} y={sy(0.06)} fontSize="11" fill="var(--muted)" transform={`rotate(-45 ${sx(0.12)} ${sy(0.06)})`}>perfect calibration</text>
         {/* axes labels */}
-        <text x={W / 2} y={H - 6} fontSize="12" textAnchor="middle" fill="var(--ink-2)">mean predicted confidence</text>
-        <text x={14} y={H / 2} fontSize="12" textAnchor="middle" fill="var(--ink-2)" transform={`rotate(-90 14 ${H / 2})`}>empirical accuracy</text>
+        <text x={W / 2} y={H - 6} fontSize="12" textAnchor="middle" fill="var(--text-2)">Predicted confidence</text>
+        <text x={14} y={H / 2} fontSize="12" textAnchor="middle" fill="var(--text-2)" transform={`rotate(-90 14 ${H / 2})`}>Actual accuracy</text>
 
         {reports.map((r, i) => {
           const color = SLOTS[i % SLOTS.length];
@@ -52,7 +52,7 @@ export function ReliabilityDiagram({ reports }: { reports: { group: string; cali
                 </circle>
               ))}
               {pts.length > 0 && (
-                <text x={sx(pts[pts.length - 1].meanConfidence) + 10} y={sy(pts[pts.length - 1].empiricalAccuracy) - 8} fontSize="11" fill="var(--ink-2)">{r.group}</text>
+                <text x={sx(pts[pts.length - 1].meanConfidence) + 10} y={sy(pts[pts.length - 1].empiricalAccuracy) - 8} fontSize="11" fill="var(--text-2)">{r.group}</text>
               )}
             </g>
           );

@@ -42,8 +42,9 @@ trade-off visible; nothing should make one disappear.
    command, deletes a file, sends email or touches a database. Keep it that way.
 
 6. **Not a chatbot.** There is no free-text prompt box that returns prose. The
-   UI's job is to show state → decision → gate → action as a pipeline of typed
-   boxes, coloured by *who owns the box* (code vs model vs simulated tool).
+   UI's job is to show input → judgment → confidence → policy → action, with
+   accent colour carrying ownership (violet = model, cyan = code, orange =
+   policy, green = simulated action). Most of the UI stays neutral.
 
 7. **Comments are for junior-to-senior engineers.** Explain *why* a boundary
    exists, not what a `for` loop does. Prefer a two-line comment at the top of
@@ -53,7 +54,8 @@ trade-off visible; nothing should make one disappear.
 
 ```
 app/            Next.js pages + API routes (thin: parse → lib → JSON)
-components/     UI. PipelineView is the visual argument of the project.
+components/     UI. ResultPanel (decision first, model vs code separated) is the visual argument;
+                ExperimentShell is the 3-column workspace; Sidebar holds nav + theme toggle.
 lib/            All logic. No React here.
   types.ts        the shared vocabulary — read first
   jev.ts          Jev builders, wire normalisation, direct/OpenRouter/Vercel clients

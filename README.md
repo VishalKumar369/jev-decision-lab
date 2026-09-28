@@ -63,7 +63,7 @@ Results land in `results/` as JSON (full traces) and CSV (one row per question).
 | 3 | **Model Router** | complexity 0–3, domain, P(needs tools) | tier mapping, tools ⇒ ≥ medium, cost/latency budget, refuse to silently downgrade | the routing call should cost less than the cheapest tier it routes to |
 | 4 | **Calibration Lab** | — | buckets every recorded prediction by confidence; ECE, MCE, Brier; confident-but-wrong list | is 0.8 really 80%? if not, your gate thresholds are fiction |
 
-Each experiment page lets you pick a provider, pick or edit a labelled example as raw JSON, run it, and see the pipeline as colour-coded stage cards (grey = deterministic code, violet = model, green = simulated tool). Every stage exposes its raw data. Detailed walk-throughs: [`docs/experiments.md`](docs/experiments.md).
+Each experiment page is a three-column lab workspace: labelled examples on the left, the editable input in the centre (key fields as form controls, raw JSON one click away), and the decision result on the right. The result shows the full probability distribution first, then confidence/route/policy, then the sequence from input → model judgment → confidence gate → policy → action, with model-owned and code-owned steps visibly separated. Raw provider responses and the full trace stay available under collapsible sections. Detailed walk-throughs: [`docs/experiments.md`](docs/experiments.md).
 
 ## Providers
 

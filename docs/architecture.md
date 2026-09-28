@@ -12,8 +12,9 @@ A thin Next.js shell around a pure-TypeScript `lib/` that turns *(state, typed q
 │   /support /agent-firewall /model-router /calibration          │
 │   /api/run  /api/run-batch  /api/results  /api/providers       │
 ├────────────────────────────────────────────────────────────────┤
-│ components/                PipelineView · ProbabilityBars ·    │
-│                            ExperimentShell · CalibrationLab    │
+│ components/                ExperimentShell · InputPanel ·      │
+│                            ResultPanel · DecisionBars ·        │
+│                            CalibrationLab · ReliabilityDiagram │
 ├────────────────────────────────────────────────────────────────┤
 │ lib/experiments/           support · firewall · router         │
 │   build request → provider.decide() → policy → PipelineTrace   │

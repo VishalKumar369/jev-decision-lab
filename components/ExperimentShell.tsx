@@ -2,21 +2,17 @@
 
 /**
  * components/ExperimentShell.tsx
+ * The lab workspace shared by experiments 1–3:
  *
- * The shared interactive frame for experiments 1–3:
+ *   | Examples | Input / Config | Decision result |
  *
- *   [provider picker] [example list with ambiguity badges] [editable JSON state]
- *                     ↓ Run
- *   [pipeline view]  [metrics strip]  [raw provider response]  [session log]
- *
- * The example editor is deliberately raw JSON: students should see the exact
- * object the pipeline consumes, edit a word, and watch the probabilities move.
+ * State and API calls live here; InputPanel and ResultPanel are presentational.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { PipelineTrace, ProviderInfo } from "@/lib/types";
-import { MetricsStrip } from "./MetricsStrip";
-import { PipelineView } from "./PipelineView";
+import { InputPanel } from "./InputPanel";
+import { ResultPanel } from "./ResultPanel";
 import { RouteBadge } from "./RouteBadge";
 
 type Experiment = "support" | "agent-firewall" | "model-router";
@@ -24,23 +20,23 @@ type Experiment = "support" | "agent-firewall" | "model-router";
 interface Props {
   experiment: Experiment;
   title: string;
-  intro: React.ReactNode;
+  subtitle: string;
+  hint?: React.ReactNode;
 }
 
-/** Short label for an example row. Lives here (not in the page) because functions can't cross the server→client boundary. */
 const LABEL_OF: Record<Experiment, (ex: Record<string, unknown>) => string> = {
   support: (ex) => String(ex.subject),
-  "agent-firewall": (ex) => `${(ex.proposed as { tool: string }).tool} — ${String(ex.goal).slice(0, 60)}`,
-  "model-router": (ex) => String(ex.prompt).slice(0, 70),
+  "agent-firewall": (ex) => `${(ex.proposed as { tool: string }).tool} · ${String(ex.goal)}`,
+  "model-router": (ex) => String(ex.prompt),
 };
 
-export function ExperimentShell({ experiment, title, intro }: Props) {
+export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
   const labelOf = LABEL_OF[experiment];
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
-  const [provider, setProvider] = useState<string>("mock");
+  const [provider, setProvider] = useState("mock");
   const [examples, setExamples] = useState<Record<string, unknown>[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<string>("");
+  const [draft, setDraft] = useState("");
   const [trace, setTrace] = useState<PipelineTrace | null>(null);
   const [log, setLog] = useState<PipelineTrace[]>([]);
   const [busy, setBusy] = useState(false);
@@ -85,7 +81,7 @@ export function ExperimentShell({ experiment, title, intro }: Props) {
     try {
       example = JSON.parse(draft);
     } catch {
-      setError("example is not valid JSON");
+      setError("input is not valid JSON");
       setBusy(false);
       return;
     }
@@ -103,115 +99,84 @@ export function ExperimentShell({ experiment, title, intro }: Props) {
   }, [draft, experiment, provider]);
 
   const providerInfo = useMemo(() => providers.find((p) => p.name === provider), [providers, provider]);
-  const sessionStats = useMemo(() => {
-    const labelled = log.filter((t) => t.outcome.correct !== null);
-    const byRoute: Record<string, number> = {};
-    for (const t of log) byRoute[t.outcome.route] = (byRoute[t.outcome.route] ?? 0) + 1;
-    return {
-      n: log.length,
-      acc: labelled.length ? labelled.filter((t) => t.outcome.correct).length / labelled.length : null,
-      p50: median(log.map((t) => t.response.latencyMs)),
-      cost: log.reduce((a, t) => a + (t.response.estimatedCostUsd ?? 0), 0),
-      byRoute,
-    };
-  }, [log]);
 
   return (
-    <div className="stack" style={{ gap: 20 }}>
-      <header>
-        <h1>{title}</h1>
-        <div className="ink2" style={{ maxWidth: 900 }}>{intro}</div>
+    <div>
+      <header className="page-head" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
+        <div>
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
+        </div>
+        {hint && <div className="small muted" style={{ maxWidth: 420, textAlign: "right" }}>{hint}</div>}
       </header>
 
-      <div className="grid" style={{ gridTemplateColumns: "minmax(240px, 300px) 1fr" }}>
-        {/* ---- left: examples ---- */}
-        <div className="card stack">
-          <div className="row" style={{ justifyContent: "space-between" }}>
-            <h3>Labelled examples</h3>
+      <div className="workspace">
+        {/* ---- Examples ---- */}
+        <section className="panel">
+          <div className="panel-head">
+            <h3>Examples</h3>
             <span className="small muted">{examples.length}</span>
           </div>
           <div className="examples">
             {examples.map((ex) => (
-              <button key={ex.id as string} className={`example ${selectedId === ex.id ? "selected" : ""}`} onClick={() => select(ex.id as string)}>
+              <button key={ex.id as string} className={`example ${selectedId === ex.id ? "selected" : ""}`} onClick={() => select(ex.id as string)} title={labelOf(ex)}>
                 <span className="id">{ex.id as string}</span>
                 <span className="t">{labelOf(ex)}</span>
-                {ex.ambiguous ? <span className="badge ambiguous" title={(ex.notes as string) ?? "annotators disagreed"}>?</span> : null}
+                {ex.ambiguous ? <span className="amb" title={(ex.notes as string) ?? "annotators disagreed"}>?</span> : <span />}
               </button>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* ---- right: editor + run ---- */}
-        <div className="card stack">
-          <div className="row" style={{ justifyContent: "space-between" }}>
-            <div className="row">
-              <label>
-                provider{" "}
-                <select value={provider} onChange={(e) => setProvider(e.target.value)}>
-                  {providers.map((p) => (
-                    <option key={p.name} value={p.name} disabled={!p.configured || !p.enabled}>
-                      {p.label}
-                      {!p.configured ? " — no key" : !p.enabled ? " — disabled" : ""}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {providerInfo && (
-                <span className="small muted">
-                  {providerInfo.kind} · {providerInfo.model}
-                </span>
-              )}
+        {/* ---- Input ---- */}
+        <section className="panel">
+          <div className="panel-head">
+            <div className="row" style={{ gap: 8 }}>
+              <select value={provider} onChange={(e) => setProvider(e.target.value)} title="Provider" aria-label="Provider">
+                {providers.map((p) => (
+                  <option key={p.name} value={p.name} disabled={!p.configured || !p.enabled}>
+                    {p.label}{!p.configured ? " — no key" : !p.enabled ? " — disabled" : ""}
+                  </option>
+                ))}
+              </select>
             </div>
-            <button onClick={run} disabled={busy}>
-              {busy ? "running…" : "Run pipeline ▶"}
+            <button className="primary" onClick={run} disabled={busy || !draft}>
+              {busy ? "Running…" : "Run experiment ▶"}
             </button>
           </div>
-          {providerInfo && <div className="small ink2">{providerInfo.description}</div>}
-          <textarea value={draft} onChange={(e) => setDraft(e.target.value)} spellCheck={false} aria-label="example JSON" />
-          <div className="small muted">
-            Edit anything and re-run. The <code>labels</code> block is ground truth and is never sent to the model — compare it against the decision afterwards.
+          {providerInfo && (
+            <div className="small muted" style={{ padding: "8px 16px 0" }}>
+              {providerInfo.kind} · <code>{providerInfo.model}</code> — {providerInfo.description}
+            </div>
+          )}
+          <InputPanel experiment={experiment} draft={draft} onDraft={setDraft} />
+          {error && <div className="error" style={{ padding: "0 16px 14px" }}>✗ {error}</div>}
+        </section>
+
+        {/* ---- Result ---- */}
+        <section className="panel result-col">
+          <div className="panel-head">
+            <h3>Decision result</h3>
+            {trace && (
+              <span className="row" style={{ gap: 8 }}>
+                <span className="small muted mono">{trace.exampleId} · {trace.provider}</span>
+                <RouteBadge route={trace.outcome.route} />
+              </span>
+            )}
           </div>
-          {error && <div className="error">✗ {error}</div>}
-        </div>
+          {trace ? <ResultPanel trace={trace} /> : <div className="result-empty">Select an example and run the experiment.</div>}
+        </section>
       </div>
 
-      {trace && (
-        <section className="stack">
-          <div className="row" style={{ justifyContent: "space-between" }}>
-            <h2>Pipeline trace · {trace.exampleId}</h2>
-            <RouteBadge route={trace.outcome.route} />
-          </div>
-          <PipelineView trace={trace} />
-          <MetricsStrip trace={trace} />
-          <details className="card">
-            <summary>raw provider response (unmodified wire payload)</summary>
-            <pre className="small">{JSON.stringify(trace.response.raw, null, 2)}</pre>
-          </details>
-        </section>
-      )}
-
-      {log.length > 0 && (
-        <section className="card stack">
-          <div className="row" style={{ justifyContent: "space-between" }}>
+      {log.length > 1 && (
+        <section className="panel session">
+          <div className="panel-head">
             <h3>This session</h3>
-            <span className="small muted">
-              {sessionStats.n} runs · accuracy {sessionStats.acc === null ? "n/a" : `${(sessionStats.acc * 100).toFixed(0)}%`} · p50 {sessionStats.p50.toFixed(0)} ms · est. ${sessionStats.cost.toFixed(5)}
-              {" · "}
-              {Object.entries(sessionStats.byRoute).map(([r, n]) => `${r}:${n}`).join(" ")}
-            </span>
+            <span className="small muted">{log.length} runs · {sessionSummary(log)}</span>
           </div>
           <table className="data">
             <thead>
-              <tr>
-                <th>example</th>
-                <th>provider</th>
-                <th>decision</th>
-                <th>expected</th>
-                <th>conf</th>
-                <th>route</th>
-                <th>ms</th>
-                <th>cost</th>
-              </tr>
+              <tr><th>example</th><th>provider</th><th>decision</th><th>expected</th><th>conf</th><th>route</th><th>ms</th></tr>
             </thead>
             <tbody>
               {log.map((t, i) => (
@@ -219,13 +184,10 @@ export function ExperimentShell({ experiment, title, intro }: Props) {
                   <td className="mono">{t.exampleId}</td>
                   <td>{t.provider}</td>
                   <td>{t.outcome.decision}</td>
-                  <td>
-                    {t.outcome.expected ?? "—"} {t.outcome.correct === null ? "" : t.outcome.correct ? "✓" : "✗"}
-                  </td>
+                  <td>{t.outcome.expected ?? "—"} {t.outcome.correct === null ? "" : t.outcome.correct ? "✓" : "✗"}</td>
                   <td className="num">{t.outcome.confidence.toFixed(2)}</td>
                   <td><RouteBadge route={t.outcome.route} /></td>
                   <td className="num">{t.response.latencyMs.toFixed(0)}</td>
-                  <td className="num">{t.response.estimatedCostUsd === null ? "n/a" : t.response.estimatedCostUsd.toExponential(1)}</td>
                 </tr>
               ))}
             </tbody>
@@ -236,8 +198,10 @@ export function ExperimentShell({ experiment, title, intro }: Props) {
   );
 }
 
-function median(xs: number[]): number {
-  if (!xs.length) return 0;
-  const s = [...xs].sort((a, b) => a - b);
-  return s[Math.floor(s.length / 2)];
+function sessionSummary(log: PipelineTrace[]): string {
+  const labelled = log.filter((t) => t.outcome.correct !== null);
+  const acc = labelled.length ? Math.round((labelled.filter((t) => t.outcome.correct).length / labelled.length) * 100) : null;
+  const lat = [...log.map((t) => t.response.latencyMs)].sort((a, b) => a - b);
+  const p50 = lat[Math.floor(lat.length / 2)] ?? 0;
+  return `accuracy ${acc === null ? "n/a" : `${acc}%`} · p50 ${p50.toFixed(0)} ms`;
 }
