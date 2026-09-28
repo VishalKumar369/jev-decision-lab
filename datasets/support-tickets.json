@@ -1,0 +1,244 @@
+[
+  {
+    "id": "t001",
+    "subject": "Charged twice this month",
+    "body": "Hi, I noticed two charges of $49 on my card for September. I only have one Pro subscription. Can you refund the duplicate? Thanks.",
+    "customer": { "tier": "pro", "accountAgeDays": 410, "refundEligible": true },
+    "order": { "amountUsd": 49, "purchasedDaysAgo": 6 },
+    "labels": { "department": "billing", "refundRequested": true, "frustration": 1 }
+  },
+  {
+    "id": "t002",
+    "subject": "Dashboard shows 500 error",
+    "body": "Since this morning the analytics dashboard returns a 500 error every time I open it. Console shows a failed call to /api/v2/metrics. Nothing changed on our side.",
+    "customer": { "tier": "enterprise", "accountAgeDays": 900, "refundEligible": true },
+    "labels": { "department": "technical", "refundRequested": false, "frustration": 2 }
+  },
+  {
+    "id": "t003",
+    "subject": "Can't log in after enabling 2FA",
+    "body": "I turned on two-factor auth yesterday and now the codes from my authenticator app are rejected. I'm locked out. Please help, I have a demo at 3pm.",
+    "customer": { "tier": "pro", "accountAgeDays": 120, "refundEligible": true },
+    "labels": { "department": "account", "refundRequested": false, "frustration": 3 }
+  },
+  {
+    "id": "t004",
+    "subject": "Pricing for 40 seats",
+    "body": "We're evaluating your product for our platform team. Could you send a quote for 40 seats on the enterprise plan, ideally with SSO? Happy to jump on a call.",
+    "customer": { "tier": "free", "accountAgeDays": 12, "refundEligible": false },
+    "labels": { "department": "sales", "refundRequested": false, "frustration": 0 }
+  },
+  {
+    "id": "t005",
+    "subject": "THIRD TIME asking",
+    "body": "This is the third time I'm writing about the export feature silently failing. Nobody responds. If this isn't fixed this week I'm cancelling and I want my money back for the last two months.",
+    "customer": { "tier": "pro", "accountAgeDays": 300, "refundEligible": true },
+    "order": { "amountUsd": 98, "purchasedDaysAgo": 45 },
+    "labels": { "department": "technical", "refundRequested": true, "frustration": 4 },
+    "notes": "Primary issue is technical; refund is a secondary demand. Purchase is outside the 30-day auto window."
+  },
+  {
+    "id": "t006",
+    "subject": "Invoice needs our VAT number",
+    "body": "Could you re-issue last month's invoice with our VAT ID (GB123456789) on it? Finance won't process it otherwise. No rush.",
+    "customer": { "tier": "enterprise", "accountAgeDays": 700, "refundEligible": true },
+    "labels": { "department": "billing", "refundRequested": false, "frustration": 0 }
+  },
+  {
+    "id": "t007",
+    "subject": "I want a refund",
+    "body": "I bought the annual plan on Friday by mistake, I meant to pick monthly. Please refund the annual charge and put me on monthly instead.",
+    "customer": { "tier": "pro", "accountAgeDays": 3, "refundEligible": true },
+    "order": { "amountUsd": 468, "purchasedDaysAgo": 3 },
+    "labels": { "department": "billing", "refundRequested": true, "frustration": 1 },
+    "notes": "Amount exceeds the $250 auto-approve limit — should route to a billing agent even though the model is confident."
+  },
+  {
+    "id": "t008",
+    "subject": "Change email on account",
+    "body": "I left my old company and need to move my account from j.doe@oldco.com to my personal address. What's the process?",
+    "customer": { "tier": "free", "accountAgeDays": 800, "refundEligible": false },
+    "labels": { "department": "account", "refundRequested": false, "frustration": 0 }
+  },
+  {
+    "id": "t009",
+    "subject": "API rate limits",
+    "body": "We're hitting 429s at around 200 req/s. Is that the documented limit for enterprise? Can it be raised, and is there a cost?",
+    "customer": { "tier": "enterprise", "accountAgeDays": 400, "refundEligible": true },
+    "labels": { "department": "technical", "refundRequested": false, "frustration": 1 },
+    "ambiguous": true,
+    "notes": "Could be technical (limits) or sales (cost to raise). Annotators split 3–2 for technical."
+  },
+  {
+    "id": "t010",
+    "subject": "Not asking for money back, just want it fixed",
+    "body": "To be clear I am NOT asking for a refund. I just want the sync bug fixed. It's been broken since the last release and it's really annoying.",
+    "customer": { "tier": "pro", "accountAgeDays": 200, "refundEligible": true },
+    "order": { "amountUsd": 49, "purchasedDaysAgo": 10 },
+    "labels": { "department": "technical", "refundRequested": false, "frustration": 3 },
+    "notes": "Negation trap for keyword systems — the word 'refund' appears but is negated."
+  },
+  {
+    "id": "t011",
+    "subject": "Downgrade question",
+    "body": "If I downgrade from Pro to Free mid-cycle, do I get the unused portion back, or does it just stop renewing?",
+    "customer": { "tier": "pro", "accountAgeDays": 60, "refundEligible": true },
+    "labels": { "department": "billing", "refundRequested": false, "frustration": 0 },
+    "ambiguous": true,
+    "notes": "Asks *about* refunds hypothetically without requesting one. Good test of 'refund requested' vs 'refund mentioned'."
+  },
+  {
+    "id": "t012",
+    "subject": "Team can't see shared projects",
+    "body": "Two of my teammates were added yesterday but shared projects don't show up for them. They've logged out and back in. Permissions look right on my end.",
+    "customer": { "tier": "enterprise", "accountAgeDays": 250, "refundEligible": true },
+    "labels": { "department": "technical", "refundRequested": false, "frustration": 2 },
+    "ambiguous": true,
+    "notes": "Could be account (permissions) or technical (bug). Labelled technical because the user already verified permissions."
+  },
+  {
+    "id": "t013",
+    "subject": "Unacceptable",
+    "body": "Your outage yesterday cost us a client demo. This is unacceptable for a product we pay $2,400 a year for. I expect a credit and an explanation from someone senior.",
+    "customer": { "tier": "enterprise", "accountAgeDays": 500, "refundEligible": true },
+    "order": { "amountUsd": 2400, "purchasedDaysAgo": 90 },
+    "labels": { "department": "billing", "refundRequested": true, "frustration": 4 },
+    "notes": "'Credit' is a refund-like request. Amount and age both fail auto-approve; frustration forces escalation regardless."
+  },
+  {
+    "id": "t014",
+    "subject": "Student discount?",
+    "body": "Hey! Do you offer any student pricing? I'm doing my masters and would love to use the Pro features for my thesis project.",
+    "customer": { "tier": "free", "accountAgeDays": 2, "refundEligible": false },
+    "labels": { "department": "sales", "refundRequested": false, "frustration": 0 }
+  },
+  {
+    "id": "t015",
+    "subject": "Delete my account and data",
+    "body": "Please delete my account and all associated data under GDPR. Confirm when done.",
+    "customer": { "tier": "free", "accountAgeDays": 30, "refundEligible": false },
+    "labels": { "department": "account", "refundRequested": false, "frustration": 1 }
+  },
+  {
+    "id": "t016",
+    "subject": "Webhook retries",
+    "body": "Our endpoint was down for an hour and we missed some webhooks. Do you retry, and if so with what backoff? Can we replay the missed events?",
+    "customer": { "tier": "pro", "accountAgeDays": 150, "refundEligible": true },
+    "labels": { "department": "technical", "refundRequested": false, "frustration": 1 }
+  },
+  {
+    "id": "t017",
+    "subject": "Refund for accidental add-on",
+    "body": "My colleague added the Premium Support add-on ($199) without approval. We don't need it. Can that be reversed? Purchased about a week ago.",
+    "customer": { "tier": "enterprise", "accountAgeDays": 600, "refundEligible": true },
+    "order": { "amountUsd": 199, "purchasedDaysAgo": 7 },
+    "labels": { "department": "billing", "refundRequested": true, "frustration": 1 },
+    "notes": "Should auto-refund: eligible, under limit, in window, clear intent."
+  },
+  {
+    "id": "t018",
+    "subject": "Refund",
+    "body": "refund pls",
+    "customer": { "tier": "free", "accountAgeDays": 1, "refundEligible": false },
+    "labels": { "department": "billing", "refundRequested": true, "frustration": 2 },
+    "notes": "Refund is requested, but the account is not refund-eligible (free tier, no order). Authorization must veto before any model opinion counts."
+  },
+  {
+    "id": "t019",
+    "subject": "Slow queries since upgrade",
+    "body": "After upgrading to Pro the query builder feels slower, like 3–4 seconds per query where it used to be instant. Is Pro on different infrastructure?",
+    "customer": { "tier": "pro", "accountAgeDays": 40, "refundEligible": true },
+    "order": { "amountUsd": 49, "purchasedDaysAgo": 12 },
+    "labels": { "department": "technical", "refundRequested": false, "frustration": 2 }
+  },
+  {
+    "id": "t020",
+    "subject": "Love the product, one ask",
+    "body": "Genuinely love what you've built. One thing: could you add dark mode to the mobile app? My eyes would thank you.",
+    "customer": { "tier": "pro", "accountAgeDays": 365, "refundEligible": true },
+    "labels": { "department": "technical", "refundRequested": false, "frustration": 0 },
+    "ambiguous": true,
+    "notes": "Feature request — no 'feature request' department exists, so it lands in technical. Shows what happens when your label set doesn't cover reality."
+  },
+  {
+    "id": "t021",
+    "subject": "SSO setup for Okta",
+    "body": "We're on the enterprise plan and want to configure SAML with Okta. Where do I find the ACS URL and entity ID?",
+    "customer": { "tier": "enterprise", "accountAgeDays": 20, "refundEligible": true },
+    "labels": { "department": "account", "refundRequested": false, "frustration": 0 },
+    "ambiguous": true,
+    "notes": "Account vs technical split. Labelled account because it is configuration, not a defect."
+  },
+  {
+    "id": "t022",
+    "subject": "Wrong card charged",
+    "body": "You charged my personal card instead of the company card I added last week. Please refund the personal card and charge the company one. It's $49.",
+    "customer": { "tier": "pro", "accountAgeDays": 100, "refundEligible": true },
+    "order": { "amountUsd": 49, "purchasedDaysAgo": 2 },
+    "labels": { "department": "billing", "refundRequested": true, "frustration": 2 }
+  },
+  {
+    "id": "t023",
+    "subject": "Is the API down?",
+    "body": "Getting timeouts on every call for the last 20 minutes. Status page says all green. Is something going on?",
+    "customer": { "tier": "enterprise", "accountAgeDays": 1000, "refundEligible": true },
+    "labels": { "department": "technical", "refundRequested": false, "frustration": 2 }
+  },
+  {
+    "id": "t024",
+    "subject": "Cancel and refund immediately",
+    "body": "Cancel my subscription and refund me immediately. I signed up 2 days ago, the product does not do what your landing page says, and I don't want to argue about it.",
+    "customer": { "tier": "pro", "accountAgeDays": 2, "refundEligible": true },
+    "order": { "amountUsd": 49, "purchasedDaysAgo": 2 },
+    "labels": { "department": "billing", "refundRequested": true, "frustration": 3 },
+    "notes": "Refund path is clear and within limits, but frustration ≥ 3 should also trigger a human touch. Both gates fire; the pipeline must show both."
+  },
+  {
+    "id": "t025",
+    "subject": "Question about seats",
+    "body": "We have 8 seats and 8 people. If one person leaves and another joins, do we need a 9th seat or can we reassign? Also what's the per-seat price these days?",
+    "customer": { "tier": "pro", "accountAgeDays": 220, "refundEligible": true },
+    "labels": { "department": "sales", "refundRequested": false, "frustration": 0 },
+    "ambiguous": true,
+    "notes": "Seat mechanics (account) plus pricing (sales). Labelled sales by majority."
+  },
+  {
+    "id": "t026",
+    "subject": "Password reset email never arrives",
+    "body": "I've requested a password reset four times. Nothing in inbox or spam. My email is correct on the account.",
+    "customer": { "tier": "free", "accountAgeDays": 400, "refundEligible": false },
+    "labels": { "department": "account", "refundRequested": false, "frustration": 2 }
+  },
+  {
+    "id": "t027",
+    "subject": "Chargeback warning",
+    "body": "I'll be disputing this charge with my bank unless you can explain why I was billed after I cancelled on the 3rd.",
+    "customer": { "tier": "pro", "accountAgeDays": 90, "refundEligible": true },
+    "order": { "amountUsd": 49, "purchasedDaysAgo": 15 },
+    "labels": { "department": "billing", "refundRequested": true, "frustration": 3 },
+    "notes": "Implicit refund request (threat of chargeback). Tests whether the model reads intent rather than keywords."
+  },
+  {
+    "id": "t028",
+    "subject": "Export to CSV missing columns",
+    "body": "The CSV export is missing the 'owner' and 'created_at' columns that show in the UI. Minor but it breaks our weekly report script.",
+    "customer": { "tier": "pro", "accountAgeDays": 180, "refundEligible": true },
+    "labels": { "department": "technical", "refundRequested": false, "frustration": 1 }
+  },
+  {
+    "id": "t029",
+    "subject": "Thanks!",
+    "body": "Just wanted to say the support last week was great. Issue's resolved. You can close this.",
+    "customer": { "tier": "pro", "accountAgeDays": 500, "refundEligible": true },
+    "labels": { "department": "account", "refundRequested": false, "frustration": 0 },
+    "ambiguous": true,
+    "notes": "No real department fits. Whatever the model picks, the confidence should be low — that low confidence is the correct behaviour."
+  },
+  {
+    "id": "t030",
+    "subject": "Procurement paperwork",
+    "body": "Our procurement team needs a W-9 and a signed security questionnaire before we can move to the enterprise tier. Who do I send these to?",
+    "customer": { "tier": "pro", "accountAgeDays": 75, "refundEligible": true },
+    "labels": { "department": "sales", "refundRequested": false, "frustration": 0 }
+  }
+]

@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+.env
+.env.local
+*.tsbuildinfo
+next-env.d.ts
+
+# Benchmark output is regenerated; keep the folder, not the files.
+results/*
+!results/.gitkeep
+!results/README.md
