@@ -193,7 +193,7 @@ export async function callJevViaOpenRouter(req: DecisionRequest): Promise<Decisi
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://github.com/bytemonk/jev-decision-lab",
-      "X-Title": "jev-decision-lab",
+      "X-Title": "Jev Lab",
     },
     body: JSON.stringify({ model, state: req.state, questions: req.questions }),
   });

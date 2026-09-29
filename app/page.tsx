@@ -11,7 +11,7 @@ export default function Home() {
     <div className="stack" style={{ gap: 22 }}>
       <header className="page-head">
         <div className="eyebrow">Lab overview</div>
-        <h1 style={{ marginTop: 6 }}>jev-decision-lab</h1>
+        <h1 style={{ marginTop: 6 }}>Jev Lab</h1>
         <p>Compare deterministic code, decision models, and LLMs in controlled experiments.</p>
       </header>
 

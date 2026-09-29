@@ -51,7 +51,7 @@ export function Sidebar() {
           priority
         />
         <div className="brand-text">
-          <span className="brand-name">jev-decision-lab</span>
+          <span className="brand-name">Jev Lab</span>
           <span className="brand-by">by ByteMonk</span>
         </div>
       </div>
