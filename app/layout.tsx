@@ -5,25 +5,25 @@ import { Sidebar } from "@/components/Sidebar";
 
 export const metadata: Metadata = {
   title: {
-    default: "Jev Lab",
-    template: "%s · Jev Lab",
+    default: "Jev Decision Lab",
+    template: "%s · Jev Decision Lab",
   },
   description:
     "Compare TypeSafe Jev with Claude and Gemini on the same support tickets — latency, tokens, cost, and calibrated probabilities.",
-  applicationName: "Jev Lab",
+  applicationName: "Jev Decision Lab",
   authors: [{ name: "ByteMonk" }],
   creator: "ByteMonk",
   keywords: ["Jev", "TypeSafe", "decision model", "ByteMonk", "support routing", "calibration"],
   openGraph: {
-    title: "Jev Lab",
+    title: "Jev Decision Lab",
     description:
       "Compare TypeSafe Jev with Claude and Gemini on the same support tickets — latency, tokens, cost, and calibrated probabilities.",
-    siteName: "Jev Lab",
+    siteName: "Jev Decision Lab",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Jev Lab",
+    title: "Jev Decision Lab",
     description:
       "Compare TypeSafe Jev with Claude and Gemini on the same support tickets — latency, tokens, cost, and calibrated probabilities.",
   },

@@ -1,17 +1,16 @@
-import Link from "next/link";
 import { Icon } from "@/components/Icons";
 
 /**
  * app/page.tsx — Overview.
- * Compact by design: three comparison columns, one decision flow, four tiles.
- * The flow diagram carries the thesis (model = judgment, code = policy); no paragraph repeats it.
+ * Three comparison columns, the decision flow thesis, then the five metrics
+ * recorded on every input query (latency · cost · accuracy · probability · escalation).
  */
 export default function Home() {
   return (
-    <div className="stack" style={{ gap: 22 }}>
+    <div className="overview-screen stack" style={{ gap: 16 }}>
       <header className="page-head">
         <div className="eyebrow">Lab overview</div>
-        <h1 style={{ marginTop: 6 }}>Jev Lab</h1>
+        <h1 style={{ marginTop: 6 }}>Jev Decision Lab</h1>
         <p>Compare deterministic code, decision models, and LLMs in controlled experiments.</p>
       </header>
 
@@ -19,6 +18,21 @@ export default function Home() {
         <Compare accent="var(--blue)" icon={<Icon.code />} title="Deterministic Code" sub="Fast, exact, predictable." rows={[["Output", "Exact value"], ["Latency", "µs"], ["Best for", "Rules, math, validation"]]} />
         <Compare accent="var(--violet)" icon={<Icon.brain />} title="Decision Model (Jev)" sub="Typed questions, calibrated probabilities." rows={[["Output", "P(answer)"], ["Latency", "~70–500 ms"], ["Best for", "Judgment, trade-offs"]]} />
         <Compare accent="var(--cyan)" icon={<Icon.spark />} title="General-purpose LLM" sub="Flexible, open-ended." rows={[["Output", "Text / JSON"], ["Latency", "1–10 s"], ["Best for", "Generation, reasoning"]]} />
+      </section>
+
+      <section className="panel panel-pad">
+        <h2 style={{ marginBottom: 14 }}>What we record</h2>
+        <div className="flow">
+          <MetricStep accent="var(--cyan)" icon={<Icon.latency />} t="Latency" s="Time to judgment" />
+          <Arrow />
+          <MetricStep accent="var(--orange)" icon={<Icon.cost />} t="Cost" s="$ per decision" />
+          <Arrow />
+          <MetricStep accent="var(--green)" icon={<Icon.accuracy />} t="Accuracy" s="Vs labelled truth" />
+          <Arrow />
+          <MetricStep accent="var(--violet)" icon={<Icon.probability />} t="Probability" s="Full distribution" />
+          <Arrow />
+          <MetricStep accent="var(--blue)" icon={<Icon.escalate />} t="Escalation rate" s="Human / stronger model" />
+        </div>
       </section>
 
       <section className="panel panel-pad">
@@ -39,14 +53,6 @@ export default function Home() {
           <span><i style={{ background: "var(--cyan)" }} />deterministic code</span>
           <span><i style={{ background: "var(--orange)" }} />policy</span>
           <span><i style={{ background: "var(--green)" }} />simulated action</span>
-        </div>
-      </section>
-
-      <section>
-        <h2 style={{ marginBottom: 12 }}>Experiments</h2>
-        <div className="grid-4" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
-          <Tile href="/support" accent="var(--violet)" icon={<Icon.chat />} t="Support Pipeline" s="From ticket to decision." />
-          <Tile href="/calibration" accent="var(--green)" icon={<Icon.bars />} t="Calibration Lab" s="Measure confidence." />
         </div>
       </section>
     </div>
@@ -91,15 +97,26 @@ function Arrow() {
   return <div className="flow-arrow" aria-hidden>→</div>;
 }
 
-function Tile({ href, accent, icon, t, s }: { href: string; accent: string; icon: React.ReactNode; t: string; s: string }) {
+function MetricStep({
+  accent,
+  icon,
+  t,
+  s,
+}: {
+  accent: string;
+  icon: React.ReactNode;
+  t: string;
+  s: string;
+}) {
   return (
-    <Link href={href} className="exp-tile" style={{ ["--accent" as string]: accent }}>
-      <span className="icon">{icon}</span>
-      <span>
+    <div className="flow-step" style={{ ["--accent" as string]: accent }}>
+      <div className="ico" aria-hidden>
+        {icon}
+      </div>
+      <div style={{ minWidth: 0 }}>
         <div className="t">{t}</div>
         <div className="s">{s}</div>
-      </span>
-      <span className="chev" style={{ display: "inline-flex", width: 16, height: 16 }}><Icon.chevron /></span>
-    </Link>
+      </div>
+    </div>
   );
 }

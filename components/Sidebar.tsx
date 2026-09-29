@@ -48,7 +48,7 @@ export function Sidebar() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/bytemonk-logo.png" alt="ByteMonk" width={32} height={32} className="brand-logo" />
         <div className="brand-text">
-          <span className="brand-name">Jev Lab</span>
+          <span className="brand-name">Jev Decision Lab</span>
           <span className="brand-by">by ByteMonk</span>
         </div>
       </div>

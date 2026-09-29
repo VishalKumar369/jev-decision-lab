@@ -276,7 +276,7 @@ export async function callLlmEmulator(
             : config.openrouter.llmModel();
       result = await openAiCompatible("https://openrouter.ai/api/v1", key, priceModel, system, user, {
         "HTTP-Referer": "https://github.com/bytemonk/jev-decision-lab",
-        "X-Title": "Jev Lab",
+        "X-Title": "Jev Decision Lab",
       });
       break;
     }
