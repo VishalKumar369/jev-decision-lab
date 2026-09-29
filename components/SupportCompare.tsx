@@ -23,12 +23,13 @@ const LABEL: Partial<Record<ProviderName, string>> = {
   "openrouter-gemini": "Gemini",
 };
 
-function usd(n: number | null): string {
+function formatCostUsd(n: number | null): string {
   if (n === null) return "n/a";
-  if (n === 0) return "$0";
-  if (n < 0.0001) return `$${n.toExponential(1)}`;
-  if (n < 0.01) return `$${n.toFixed(5)}`;
-  return `$${n.toFixed(4)}`;
+  if (n === 0) return "$0.000000";
+  // Always fixed decimals so Jev ($0.000026) is comparable to Claude ($0.001520).
+  if (n < 0.01) return `$${n.toFixed(6)}`;
+  if (n < 1) return `$${n.toFixed(4)}`;
+  return `$${n.toFixed(2)}`;
 }
 
 function preferredOrder(name: ProviderName): number {
@@ -160,12 +161,16 @@ function ArmCard({ trace }: { trace: PipelineTrace }) {
           <span className="v">{Math.round(trace.response.latencyMs)} ms</span>
         </div>
         <div>
-          <span className="k">Cost</span>
-          <span className="v">{usd(trace.response.estimatedCostUsd)}</span>
+          <span className="k">Est. cost</span>
+          <span className="v cost">{formatCostUsd(trace.response.estimatedCostUsd)}</span>
         </div>
-        <div>
-          <span className="k">Tokens</span>
-          <span className="v mono">{u ? `${u.input_tokens}/${u.output_tokens}` : "n/a"}</span>
+        <div title="Tokens sent to the model (prompt / state + questions)">
+          <span className="k">Tokens in</span>
+          <span className="v mono">{u ? u.input_tokens.toLocaleString() : "n/a"}</span>
+        </div>
+        <div title="Tokens the model generated (JSON answers)">
+          <span className="k">Tokens out</span>
+          <span className="v mono">{u ? u.output_tokens.toLocaleString() : "n/a"}</span>
         </div>
       </div>
 
