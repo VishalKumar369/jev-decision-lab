@@ -46,7 +46,7 @@ export const config = {
     model: () => env("GOOGLE_MODEL", "gemini-2.0-flash"),
   },
   lab: {
-    defaultProvider: () => env("DEFAULT_PROVIDER", "mock") as ProviderName,
+    defaultProvider: () => env("DEFAULT_PROVIDER", "jev") as ProviderName,
     enabledProviders: (): ProviderName[] =>
       env("ENABLED_PROVIDERS", "mock,jev,openrouter-jev,openrouter-llm,openai,anthropic,google,vercel-jev")
         .split(",")

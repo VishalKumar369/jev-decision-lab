@@ -30,10 +30,21 @@ const LABEL_OF: Record<Experiment, (ex: Record<string, unknown>) => string> = {
   "model-router": (ex) => String(ex.prompt),
 };
 
+/** Prefer configured Jev when available so the lab does not silently start on mock. */
+function resolveInitialProvider(providers: ProviderInfo[], serverDefault: string): string {
+  const usable = (p: ProviderInfo | undefined) => p && p.configured && p.enabled;
+  const jev = providers.find((p) => p.name === "jev");
+  if (usable(jev)) return "jev";
+  const fromServer = providers.find((p) => p.name === serverDefault);
+  if (usable(fromServer)) return serverDefault;
+  const first = providers.find((p) => usable(p));
+  return first?.name ?? serverDefault;
+}
+
 export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
   const labelOf = LABEL_OF[experiment];
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
-  const [provider, setProvider] = useState("mock");
+  const [provider, setProvider] = useState("jev");
   const [examples, setExamples] = useState<Record<string, unknown>[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -47,7 +58,7 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
       .then((r) => r.json())
       .then((d: { providers: ProviderInfo[]; defaultProvider: string }) => {
         setProviders(d.providers);
-        setProvider(d.defaultProvider);
+        setProvider(resolveInitialProvider(d.providers, d.defaultProvider));
       })
       .catch(() => setError("could not load providers"));
     fetch(`/api/examples/${experiment}`)
@@ -99,6 +110,7 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
   }, [draft, experiment, provider]);
 
   const providerInfo = useMemo(() => providers.find((p) => p.name === provider), [providers, provider]);
+  const usingMock = provider === "mock";
 
   return (
     <div>
@@ -130,22 +142,28 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
 
         {/* ---- Input ---- */}
         <section className="panel">
-          <div className="panel-head">
-            <div className="row" style={{ gap: 8 }}>
-              <select value={provider} onChange={(e) => setProvider(e.target.value)} title="Provider" aria-label="Provider">
+          <div className="panel-head panel-head-run">
+            <label className="judge-with">
+              <span>Judge with</span>
+              <select value={provider} onChange={(e) => setProvider(e.target.value)} aria-label="Judge with">
                 {providers.map((p) => (
                   <option key={p.name} value={p.name} disabled={!p.configured || !p.enabled}>
                     {p.label}{!p.configured ? " — no key" : !p.enabled ? " — disabled" : ""}
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
             <button className="primary" onClick={run} disabled={busy || !draft}>
-              {busy ? "Running…" : "Run experiment ▶"}
+              {busy ? "Running…" : "Run ▶"}
             </button>
           </div>
-          {providerInfo && (
-            <div className="small muted" style={{ padding: "8px 16px 0" }}>
+          {usingMock && (
+            <div className="provider-banner mock">
+              Mock heuristic — keyword rules with noise, <b>not a model</b>. Switch to TypeSafe Jev for real probabilities.
+            </div>
+          )}
+          {providerInfo && !usingMock && (
+            <div className="small muted provider-blurb">
               {providerInfo.kind} · <code>{providerInfo.model}</code> — {providerInfo.description}
             </div>
           )}
@@ -164,7 +182,7 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
               </span>
             )}
           </div>
-          {trace ? <ResultPanel trace={trace} /> : <div className="result-empty">Select an example and run the experiment.</div>}
+          {trace ? <ResultPanel trace={trace} /> : <div className="result-empty">Select an example and run — judgments first, then code decides the route.</div>}
         </section>
       </div>
 

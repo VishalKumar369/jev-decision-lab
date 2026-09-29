@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -43,8 +44,18 @@ export function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <span className="brand-mark">J</span>
-        jev-decision-lab
+        <Image
+          src="/bytemonk-logo.png"
+          alt="ByteMonk"
+          width={32}
+          height={32}
+          className="brand-logo"
+          priority
+        />
+        <div className="brand-text">
+          <span className="brand-name">jev-decision-lab</span>
+          <span className="brand-by">by ByteMonk</span>
+        </div>
       </div>
       <nav className="navlist">
         {LINKS.map((l) => (
@@ -61,6 +72,16 @@ export function Sidebar() {
           Teaching lab
           <div className="muted" style={{ paddingLeft: 15 }}>Not for production</div>
         </div>
+        <a
+          className="bytemonk-soft"
+          href="https://github.com/bytemonk"
+          target="_blank"
+          rel="noreferrer"
+          title="ByteMonk"
+        >
+          <Image src="/bytemonk-logo.png" alt="" width={18} height={18} className="brand-logo soft" />
+          <span>ByteMonk</span>
+        </a>
         <button className="theme-toggle" onClick={toggle} aria-label="Toggle theme">
           <span style={{ display: "inline-flex", width: 14, height: 14 }}>{theme === "dark" ? <Icon.sun /> : <Icon.moon />}</span>
           {theme === "dark" ? "Light theme" : "Dark theme"}

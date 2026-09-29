@@ -24,11 +24,11 @@ That is what this lab is for. It puts Jev, plain code and general-purpose LLMs o
 
 ```bash
 npm install
-cp .env.example .env.local     # add TYPESAFE_API_KEY, or skip it
+cp .env.example .env.local     # add TYPESAFE_API_KEY; DEFAULT_PROVIDER=jev
 npm run dev                    # http://localhost:3000
 ```
 
-No key? The built-in `mock` provider (keyword heuristics, deliberately mediocre, not a model) runs everything offline so you can learn the shape first.
+With `TYPESAFE_API_KEY` set, the UI defaults to **TypeSafe Jev (direct)** — keys stay server-side only, never in frontend code or git. No key? Switch the provider picker to `mock` (keyword heuristics, deliberately mediocre, not a model) to explore the pipeline offline.
 
 ```bash
 npm run bench -- --provider mock,jev    # datasets through each provider, JSON + CSV in results/

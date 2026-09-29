@@ -85,22 +85,6 @@ function Verdict({ route, why, label }: { route: Route; why: string; label?: str
   );
 }
 
-function Seq({ steps }: { steps: { t: string; s: string; accent: string }[] }) {
-  return (
-    <div className="seq">
-      {steps.map((st, i) => (
-        <div key={st.t} style={{ display: "contents" }}>
-          <div className="seq-step" style={{ ["--accent" as string]: st.accent }}>
-            <div className="t">{st.t}</div>
-            <div className="s">{st.s}</div>
-          </div>
-          {i < steps.length - 1 && <div className="seq-arrow">→</div>}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function CheckList({ checks }: { checks: Check[] }) {
   return (
     <div className="checks">
@@ -130,59 +114,94 @@ function SupportResult({ trace }: { trace: PipelineTrace }) {
   const action = stage(trace, (s) => s.kind === "action");
   const refundAction = (action?.data as { refundAction?: string } | undefined)?.refundAction ?? "—";
   const route = trace.outcome.route;
+  const escalate = Boolean((frusStage?.data as { escalate?: boolean } | undefined)?.escalate);
+  const gt = trace.outcome.expected;
+  const gtOk = trace.outcome.correct;
 
   return (
     <>
-      <div>
-        <div className="section-label">
-          Decision · department
-          <span className="badge owner-model owner">model judgment</span>
+      {/* ---- Model judgment: choice + noul + score, full distributions ---- */}
+      <section className="band band-model">
+        <div className="band-head">
+          <div className="section-label" style={{ marginBottom: 0 }}>
+            Model judgment
+            <span className="badge owner-model">choice · noul · score</span>
+          </div>
+          <div className="small muted">Jev returns probabilities — not a paragraph.</div>
         </div>
-        <DecisionBars answer={dept} />
-      </div>
 
-      <div className="stats">
-        <Stat k="Confidence" v={dept.confidence.toFixed(2)} hero />
-        <Stat k="Route" v={ROUTE_LABEL[route]} hero accent={ROUTE_ACCENT[route]} />
-        <Stat k="Refund policy" v={refundAction.replace(/-/g, " ")} />
-        <Stat k="Ground truth" v={`${trace.outcome.expected} ${trace.outcome.correct ? "✓" : "✗"}`} accent={trace.outcome.correct ? "var(--green)" : "var(--red)"} />
-      </div>
-
-      <div>
-        <div className="section-label">Sequence</div>
-        <Seq
-          steps={[
-            { t: "Ticket", s: (trace.stages[0]?.summary ?? "").split(" · ").slice(1).join(" · "), accent: "var(--text-2)" },
-            { t: "Jev judgment", s: `${dept.choice} ${Math.round(dept.confidence * 100)}% · refund ${Math.round(refund.noul * 100)}% · frustration ${frus.score.toFixed(1)}`, accent: "var(--violet)" },
-            { t: "Confidence gate", s: gate?.route ? ROUTE_LABEL[gate.route] + ` · conf ${dept.confidence.toFixed(2)}` : "", accent: "var(--cyan)" },
-            { t: "Refund policy", s: refundAction.replace(/-/g, " "), accent: "var(--orange)" },
-            { t: "Action", s: ROUTE_LABEL[route], accent: ROUTE_ACCENT[route] },
-          ]}
-        />
-      </div>
-
-      <div className="grid-3" style={{ gridTemplateColumns: "1fr 1fr" }}>
         <div>
-          <div className="section-label">Other judgments <span className="badge owner-model owner">model</span></div>
-          <div className="stack" style={{ gap: 10 }}>
-            <DecisionBars answer={refund} name="Refund requested" compact />
-            <DecisionBars answer={frus} name="Frustration" headline={`E = ${frus.score.toFixed(2)}`} compact />
+          <div className="section-label">
+            Department
+            <span className="badge owner-model owner">choice</span>
+          </div>
+          <DecisionBars answer={dept} />
+        </div>
+
+        <div className="judgment-grid">
+          <div>
+            <div className="section-label">
+              Refund requested
+              <span className="badge owner-model owner">noul</span>
+            </div>
+            <DecisionBars answer={refund} name="P(yes)" compact />
+          </div>
+          <div>
+            <div className="section-label">
+              Frustration
+              <span className="badge owner-model owner">score</span>
+            </div>
+            <DecisionBars answer={frus} name="Expected level" headline={`E = ${frus.score.toFixed(2)}`} compact />
           </div>
         </div>
-        <div>
-          <div className="section-label">Policy checks <span className="badge owner-code owner">code</span></div>
-          <CheckList checks={checksOf(refundStage)} />
-          {frusStage && (
-            <div className="checks" style={{ marginTop: 6 }}>
-              <span className="k">frustration escalation</span>
-              <span className={`v ${(frusStage.data as { escalate?: boolean }).escalate ? "pill-warn" : "pill-ok"}`}>{(frusStage.data as { escalate?: boolean }).escalate ? "Escalate" : "No"}</span>
-              <span className="d">{frusStage.summary}</span>
-            </div>
-          )}
-        </div>
-      </div>
+      </section>
 
-      <Verdict route={route} why={action?.summary ?? ""} label="Final action" />
+      {/* ---- Code decides: gate + policy + simulated action ---- */}
+      <section className="band band-code">
+        <div className="band-head">
+          <div className="section-label" style={{ marginBottom: 0 }}>
+            Code decides
+            <span className="badge owner-code">thresholds · policy</span>
+          </div>
+          <div className="small muted">Business rules stay in TypeScript — not in the prompt.</div>
+        </div>
+
+        <div className="gate-row">
+          <div className="gate-card" style={{ ["--accent" as string]: "var(--cyan)" }}>
+            <div className="eyebrow">Confidence gate</div>
+            <div className="gate-value" style={{ color: ROUTE_ACCENT[gate?.route ?? route] }}>
+              {ROUTE_LABEL[gate?.route ?? route]}
+            </div>
+            <div className="small muted">
+              top {dept.choice} · conf {dept.confidence.toFixed(2)}
+              {gate?.summary ? ` · ${gate.summary}` : ""}
+            </div>
+          </div>
+          <div className="gate-card" style={{ ["--accent" as string]: "var(--orange)" }}>
+            <div className="eyebrow">Refund policy</div>
+            <div className="gate-value" style={{ color: "var(--orange)" }}>{refundAction.replace(/-/g, " ")}</div>
+            <div className="small muted">noul {refund.noul.toFixed(2)} · code owns $ / window / eligibility</div>
+          </div>
+        </div>
+
+        <CheckList checks={checksOf(refundStage)} />
+        {frusStage && (
+          <div className="checks" style={{ marginTop: 4 }}>
+            <span className="k">frustration escalation</span>
+            <span className={`v ${escalate ? "pill-warn" : "pill-ok"}`}>{escalate ? "Escalate" : "No"}</span>
+            <span className="d">{frusStage.summary}</span>
+          </div>
+        )}
+
+        <Verdict route={route} why={action?.summary ?? ""} label="Final action" />
+
+        {gt != null && (
+          <div className="small muted gt-line">
+            Ground truth department: <b style={{ color: gtOk ? "var(--green)" : "var(--red)" }}>{gt}</b>
+            {gtOk === null ? "" : gtOk ? " ✓" : " ✗"}
+          </div>
+        )}
+      </section>
     </>
   );
 }

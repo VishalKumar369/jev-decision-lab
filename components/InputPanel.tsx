@@ -66,6 +66,14 @@ function Fact({ k, v }: { k: string; v: React.ReactNode }) {
 function SupportFields({ t, set }: { t: SupportTicket; set: (p: string[], v: unknown) => void }) {
   return (
     <>
+      <div className="questions-hint">
+        <span className="eyebrow">State → three questions</span>
+        <div className="q-chips">
+          <span className="q-chip model">choice · department</span>
+          <span className="q-chip model">noul · refund</span>
+          <span className="q-chip model">score · frustration</span>
+        </div>
+      </div>
       <label className="field">
         <span>Subject</span>
         <input type="text" value={t.subject ?? ""} onChange={(e) => set(["subject"], e.target.value)} />
