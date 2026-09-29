@@ -44,10 +44,8 @@ export default function Home() {
 
       <section>
         <h2 style={{ marginBottom: 12 }}>Experiments</h2>
-        <div className="grid-4">
+        <div className="grid-4" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
           <Tile href="/support" accent="var(--violet)" icon={<Icon.chat />} t="Support Pipeline" s="From ticket to decision." />
-          <Tile href="/agent-firewall" accent="var(--orange)" icon={<Icon.shield />} t="Agent Firewall" s="Check tool calls safely." />
-          <Tile href="/model-router" accent="var(--cyan)" icon={<Icon.route />} t="Model Router" s="Pick the right model." />
           <Tile href="/calibration" accent="var(--green)" icon={<Icon.bars />} t="Calibration Lab" s="Measure confidence." />
         </div>
       </section>

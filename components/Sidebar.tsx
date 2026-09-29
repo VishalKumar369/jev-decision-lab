@@ -9,9 +9,7 @@ import { Icon } from "./Icons";
 const LINKS = [
   { href: "/", label: "Overview", icon: Icon.home },
   { href: "/support", label: "Support Pipeline", icon: Icon.chat, n: "1" },
-  { href: "/agent-firewall", label: "Agent Firewall", icon: Icon.shield, n: "2" },
-  { href: "/model-router", label: "Model Router", icon: Icon.route, n: "3" },
-  { href: "/calibration", label: "Calibration Lab", icon: Icon.bars, n: "4" },
+  { href: "/calibration", label: "Calibration Lab", icon: Icon.bars, n: "2" },
 ];
 
 export function Sidebar() {

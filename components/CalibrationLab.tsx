@@ -21,14 +21,14 @@ interface Payload {
   ambiguous: MetricRecord[];
 }
 
-type Experiment = "support" | "agent-firewall" | "model-router";
+type Experiment = "support";
 
 export function CalibrationLab() {
   const [data, setData] = useState<Payload | null>(null);
   const [bins, setBins] = useState(10);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [provider, setProvider] = useState("mock");
-  const [experiment, setExperiment] = useState<Experiment>("support");
+  const [experiment] = useState<Experiment>("support");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [view, setView] = useState<"provider" | "detailed">("provider");
@@ -79,19 +79,14 @@ export function CalibrationLab() {
 
   const controls = (
     <div className="row" style={{ gap: 8 }}>
-      <select value={experiment} onChange={(e) => setExperiment(e.target.value as Experiment)}>
-        <option value="support">support-tickets</option>
-        <option value="agent-firewall">agent-actions</option>
-        <option value="model-router">routing-prompts</option>
-      </select>
-      <select value={provider} onChange={(e) => setProvider(e.target.value)}>
+      <select value={provider} onChange={(e) => setProvider(e.target.value)} aria-label="Provider">
         {providers.map((p) => (
           <option key={p.name} value={p.name} disabled={!p.configured || !p.enabled}>
             {p.label}{!p.configured ? " — no key" : ""}
           </option>
         ))}
       </select>
-      <button className="primary" onClick={runBatch} disabled={busy}>{busy ? "Running…" : "Run dataset"}</button>
+      <button className="primary" onClick={runBatch} disabled={busy}>{busy ? "Running…" : "Run support dataset"}</button>
     </div>
   );
 

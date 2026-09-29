@@ -42,13 +42,11 @@ npm run latency -- --provider jev       # percentiles, batched vs sequential
 | # | Experiment | Model decides | Code decides |
 |---|---|---|---|
 | 1 | Support Pipeline | department, refund requested, frustration | eligibility, $ limit, date window, escalation, confidence gate |
-| 2 | Agent Firewall | intent alignment, blast radius | allowlist, role, arguments, rate limit, per-risk thresholds. Nothing executes. |
-| 3 | Model Router | complexity, domain, needs tools | tier mapping, cost/latency budget, no silent downgrade |
-| 4 | Calibration Lab | none | buckets every prediction by confidence and checks whether 0.8 means 80% |
+| 2 | Calibration Lab | none | buckets every prediction by confidence and checks whether 0.8 means 80% |
 
 ## Providers
 
-One interface, swap by env var: TypeSafe Jev direct, Jev via OpenRouter or Vercel AI Gateway, and OpenAI / Anthropic / Gemini asked to answer the same typed questions as JSON (the fair LLM comparison). See `.env.example`.
+One interface, swap by env var: TypeSafe Jev direct, and Claude / Gemini via OpenRouter asked to answer the same typed questions as JSON. See `.env.example`.
 
 ## Read more
 
@@ -60,6 +58,6 @@ One interface, swap by env var: TypeSafe Jev direct, Jev via OpenRouter or Verce
 
 ## Safety
 
-The Agent Action Firewall never executes anything. All tools are simulated (`lib/simulated-tools.ts`).
+Keys stay server-side. Support compare never executes real side effects — refund / routing actions are simulated.
 
 MIT. Teach with it, fork it, break it.
