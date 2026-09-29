@@ -6,38 +6,82 @@
 
 import type { Answer } from "@/lib/types";
 
-export function rowsOf(answer: Answer): { label: string; p: number }[] {
-  if (answer.type === "noul") return [{ label: "yes", p: answer.noul }, { label: "no", p: 1 - answer.noul }];
-  if (answer.type === "score") return Object.entries(answer.probabilities).map(([k, p]) => ({ label: `${k} · ${(answer.legend[k] ?? "").split(" — ")[0]}`, p }));
-  return Object.entries(answer.probabilities).map(([k, p]) => ({ label: k, p }));
+/** Short rubric name for score bars (text before the em-dash). */
+function scoreShort(legend: string): string {
+  const head = legend.split(" — ")[0].trim();
+  // "mildly annoyed" stays readable; drop trailing fluff only.
+  return head || legend;
+}
+
+export function rowsOf(answer: Answer): { label: string; p: number; key: string }[] {
+  if (answer.type === "noul") {
+    return [
+      { key: "yes", label: "yes", p: answer.noul },
+      { key: "no", label: "no", p: 1 - answer.noul },
+    ];
+  }
+  if (answer.type === "score") {
+    return Object.entries(answer.probabilities).map(([k, p]) => ({
+      key: k,
+      label: `${k}  ${scoreShort(answer.legend[k] ?? "")}`,
+      p,
+    }));
+  }
+  return Object.entries(answer.probabilities).map(([k, p]) => ({ key: k, label: k, p }));
 }
 
 export function marginOf(answer: Answer): number {
-  const s = rowsOf(answer).map((r) => r.p).sort((a, b) => b - a);
+  const s = rowsOf(answer)
+    .map((r) => r.p)
+    .sort((a, b) => b - a);
   return (s[0] ?? 0) - (s[1] ?? 0);
 }
 
-export function DecisionBars({ answer, name, headline, compact = false }: { answer: Answer; name?: string; headline?: string; compact?: boolean }) {
-  const rows = rowsOf(answer).sort((a, b) => b.p - a.p);
-  const top = rows[0]?.p ?? 0;
+export function DecisionBars({
+  answer,
+  name,
+  headline,
+  compact = false,
+}: {
+  answer: Answer;
+  name?: string;
+  headline?: string;
+  compact?: boolean;
+}) {
+  // Ordered rubrics stay in level order; choices/nouls sort by mass so the winner leads.
+  const rows =
+    answer.type === "score"
+      ? [...rowsOf(answer)].sort((a, b) => Number(a.key) - Number(b.key))
+      : [...rowsOf(answer)].sort((a, b) => b.p - a.p);
+  const top = Math.max(...rows.map((r) => r.p), 0);
   const margin = marginOf(answer);
+  const isScore = answer.type === "score";
+
   return (
     <div>
       {(name || headline) && (
         <div className="decision-head">
-          <span className="name">{name && <b>{name}</b>}{name && headline ? " · " : ""}{headline}</span>
+          <span className="name">
+            {name && <b>{name}</b>}
+            {name && headline ? " · " : ""}
+            {headline}
+          </span>
         </div>
       )}
-      <div className="decision-bars" style={compact ? { gap: 5 } : undefined}>
+      <div className={`decision-bars ${compact ? "compact" : ""} ${isScore ? "score" : ""}`}>
         {rows.map((r) => (
-          <div key={r.label} className={`dbar ${r.p === top ? "top" : ""}`} style={compact ? { gridTemplateColumns: "minmax(80px, 34%) 1fr 44px" } : undefined} title={`${r.label}: ${r.p.toFixed(4)}`}>
-            <span className="l" style={compact ? { fontSize: 12.5 } : undefined}>{r.label}</span>
-            <span className="track" style={compact ? { height: 7 } : undefined}><span className="fill" style={{ width: `${Math.max(1, r.p * 100)}%` }} /></span>
-            <span className="p" style={compact ? { fontSize: 12.5 } : undefined}>{Math.round(r.p * 100)}%</span>
+          <div key={r.key} className={`dbar ${r.p === top ? "top" : ""}`} title={`${r.label}: ${r.p.toFixed(4)}`}>
+            <span className="l">{r.label}</span>
+            <span className="track">
+              <span className="fill" style={{ width: `${Math.max(1, r.p * 100)}%` }} />
+            </span>
+            <span className="p">{Math.round(r.p * 100)}%</span>
           </div>
         ))}
       </div>
-      {margin < 0.2 && !compact && <div className="near-tie">Near tie — top two options within {Math.round(margin * 100)} pts. Confidence alone should not automate this.</div>}
+      {margin < 0.2 && !compact && (
+        <div className="near-tie">Near tie — top two options within {Math.round(margin * 100)} pts. Confidence alone should not automate this.</div>
+      )}
     </div>
   );
 }

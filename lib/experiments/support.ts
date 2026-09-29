@@ -166,9 +166,9 @@ export async function runSupport(
     ticket.id,
     res,
     {
-      department: ticket.labels.department,
-      refundRequested: String(ticket.labels.refundRequested),
-      frustration: String(ticket.labels.frustration),
+      department: ticket.labels?.department,
+      refundRequested: ticket.labels ? String(ticket.labels.refundRequested) : undefined,
+      frustration: ticket.labels ? String(ticket.labels.frustration) : undefined,
     },
     finalRoute,
     flags,
@@ -184,8 +184,8 @@ export async function runSupport(
       route: finalRoute,
       decision: department.choice,
       confidence: department.confidence,
-      expected: ticket.labels.department,
-      correct: department.choice === ticket.labels.department,
+      expected: ticket.labels?.department ?? null,
+      correct: ticket.labels ? department.choice === ticket.labels.department : null,
     },
     response: res,
   };

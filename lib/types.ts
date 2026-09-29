@@ -279,7 +279,7 @@ export interface SupportTicket {
     /** Relative so the dataset never goes stale; the engine converts to a date. */
     purchasedDaysAgo: number;
   };
-  labels: {
+  labels?: {
     department: "billing" | "technical" | "account" | "sales";
     refundRequested: boolean;
     frustration: 0 | 1 | 2 | 3 | 4;

@@ -15,7 +15,6 @@ const BLANK: SupportTicket = {
   subject: "",
   body: "",
   customer: { tier: "pro", accountAgeDays: 180, refundEligible: true },
-  labels: { department: "billing", refundRequested: false, frustration: 0 },
 };
 
 const LABEL: Partial<Record<ProviderName, string>> = {
