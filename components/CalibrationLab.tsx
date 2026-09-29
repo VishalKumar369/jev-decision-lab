@@ -97,7 +97,14 @@ export function CalibrationLab() {
         <p>Does 0.8 mean 80%? Bucket every recorded prediction by confidence and compare with actual accuracy.</p>
       </header>
 
-      {data && data.total === 0 ? (
+      {data === null ? (
+        <section className="panel">
+          <div className="empty-state">
+            <h3>Loading results…</h3>
+            <p>Reading labelled predictions from results/.</p>
+          </div>
+        </section>
+      ) : data.total === 0 ? (
         <section className="panel">
           <div className="empty-state">
             <h3>No calibration run yet</h3>
