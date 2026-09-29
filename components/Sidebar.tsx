@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,15 +13,18 @@ const LINKS = [
 
 export function Sidebar() {
   const path = usePathname();
+  // Match the inline theme script in layout.tsx — never flip icons until mounted.
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     try {
       const saved = localStorage.getItem("jev-lab-theme");
-      if (saved === "light" || saved === "dark") {
-        setTheme(saved);
-        document.documentElement.dataset.theme = saved;
-      }
+      const current = document.documentElement.dataset.theme;
+      const next = saved === "light" || saved === "dark" ? saved : current === "light" ? "light" : "dark";
+      setTheme(next);
+      document.documentElement.dataset.theme = next;
     } catch {
       /* storage unavailable */
     }
@@ -40,16 +42,11 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" suppressHydrationWarning>
       <div className="brand">
-        <Image
-          src="/bytemonk-logo.png"
-          alt="ByteMonk"
-          width={32}
-          height={32}
-          className="brand-logo"
-          priority
-        />
+        {/* Plain img avoids next/image inline styles that browser extensions mutate before hydrate. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/bytemonk-logo.png" alt="ByteMonk" width={32} height={32} className="brand-logo" />
         <div className="brand-text">
           <span className="brand-name">Jev Lab</span>
           <span className="brand-by">by ByteMonk</span>
@@ -77,12 +74,15 @@ export function Sidebar() {
           rel="noreferrer"
           title="ByteMonk"
         >
-          <Image src="/bytemonk-logo.png" alt="" width={18} height={18} className="brand-logo soft" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/bytemonk-logo.png" alt="" width={18} height={18} className="brand-logo soft" />
           <span>ByteMonk</span>
         </a>
-        <button className="theme-toggle" onClick={toggle} aria-label="Toggle theme">
-          <span style={{ display: "inline-flex", width: 14, height: 14 }}>{theme === "dark" ? <Icon.sun /> : <Icon.moon />}</span>
-          {theme === "dark" ? "Light theme" : "Dark theme"}
+        <button className="theme-toggle" onClick={toggle} aria-label="Toggle theme" suppressHydrationWarning>
+          <span style={{ display: "inline-flex", width: 14, height: 14 }} suppressHydrationWarning>
+            {!mounted || theme === "dark" ? <Icon.sun /> : <Icon.moon />}
+          </span>
+          {!mounted || theme === "dark" ? "Light theme" : "Dark theme"}
         </button>
       </div>
     </aside>

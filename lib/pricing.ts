@@ -31,7 +31,6 @@ const TABLE: Record<string, Price> = {
   "openai/gpt-4o-mini": { inputPerMillion: 0.15, outputPerMillion: 0.6, source: "openrouter (approx)" },
   "gpt-4o": { inputPerMillion: 2.5, outputPerMillion: 10, source: "openai pricing (approx)" },
   "gpt-4.1-mini": { inputPerMillion: 0.4, outputPerMillion: 1.6, source: "openai pricing (approx)" },
-  "claude-haiku-4-5": { inputPerMillion: 1, outputPerMillion: 5, source: "anthropic pricing (approx)" },
   "claude-haiku-4.5": { inputPerMillion: 1, outputPerMillion: 5, source: "anthropic pricing (approx)" },
   "anthropic/claude-haiku-4.5": { inputPerMillion: 1, outputPerMillion: 5, source: "openrouter (approx)" },
   "anthropic/claude-3.5-haiku": { inputPerMillion: 0.8, outputPerMillion: 4, source: "openrouter (approx)" },

@@ -1,6 +1,15 @@
 /** Tiny inline icon set (stroke icons, currentColor). Kept local to avoid a dependency. */
 
-const base = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, viewBox: "0 0 24 24" };
+const base = {
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  viewBox: "0 0 24 24",
+  // Browser extensions (e.g. Dark Reader) inject stroke/style attrs before hydrate.
+  suppressHydrationWarning: true,
+};
 
 export const Icon = {
   home: () => (

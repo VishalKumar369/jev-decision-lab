@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
 
@@ -32,10 +33,16 @@ export const metadata: Metadata = {
   },
 };
 
+/** Apply saved theme before paint so SSR HTML and the first client paint agree. */
+const themeInit = `(function(){try{var t=localStorage.getItem("jev-lab-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
-      <body>
+      <body suppressHydrationWarning>
+        <Script id="jev-lab-theme" strategy="beforeInteractive">
+          {themeInit}
+        </Script>
         <div className="frame">
           <Sidebar />
           <main className="main">{children}</main>
