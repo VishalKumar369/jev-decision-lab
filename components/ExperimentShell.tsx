@@ -6,11 +6,13 @@
  *
  *   | Examples | Input / Config | Decision result |
  *
- * State and API calls live here; InputPanel and ResultPanel are presentational.
+ * Support runs a parallel compare (Jev + Claude + Gemini) by default.
+ * Other experiments still pick a single provider.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { PipelineTrace, ProviderInfo } from "@/lib/types";
+import type { CompareRunResult, PipelineTrace, ProviderInfo } from "@/lib/types";
+import { CompareResultPanel } from "./CompareResultPanel";
 import { InputPanel } from "./InputPanel";
 import { ResultPanel } from "./ResultPanel";
 import { RouteBadge } from "./RouteBadge";
@@ -43,12 +45,15 @@ function resolveInitialProvider(providers: ProviderInfo[], serverDefault: string
 
 export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
   const labelOf = LABEL_OF[experiment];
+  const isSupport = experiment === "support";
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
+  const [compareArms, setCompareArms] = useState<ProviderInfo[]>([]);
   const [provider, setProvider] = useState("jev");
   const [examples, setExamples] = useState<Record<string, unknown>[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [trace, setTrace] = useState<PipelineTrace | null>(null);
+  const [compare, setCompare] = useState<CompareRunResult | null>(null);
   const [log, setLog] = useState<PipelineTrace[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,9 +61,10 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
   useEffect(() => {
     fetch("/api/providers")
       .then((r) => r.json())
-      .then((d: { providers: ProviderInfo[]; defaultProvider: string }) => {
+      .then((d: { providers: ProviderInfo[]; defaultProvider: string; supportCompare?: ProviderInfo[] }) => {
         setProviders(d.providers);
         setProvider(resolveInitialProvider(d.providers, d.defaultProvider));
+        setCompareArms(d.supportCompare ?? []);
       })
       .catch(() => setError("could not load providers"));
     fetch(`/api/examples/${experiment}`)
@@ -80,6 +86,7 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
       setSelectedId(id);
       setDraft(JSON.stringify(ex, null, 2));
       setTrace(null);
+      setCompare(null);
       setError(null);
     },
     [examples],
@@ -97,20 +104,37 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
       return;
     }
     try {
-      const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ experiment, provider, example }) });
-      const d = (await r.json()) as { trace?: PipelineTrace; error?: string };
-      if (!r.ok || !d.trace) throw new Error(d.error ?? `HTTP ${r.status}`);
-      setTrace(d.trace);
-      setLog((l) => [d.trace!, ...l].slice(0, 50));
+      const payload = isSupport
+        ? { experiment, example, compare: true }
+        : { experiment, provider, example, compare: false };
+      const r = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const d = (await r.json()) as { trace?: PipelineTrace; compare?: CompareRunResult; error?: string };
+      if (!r.ok) throw new Error(d.error ?? `HTTP ${r.status}`);
+
+      if (d.compare) {
+        setCompare(d.compare);
+        setTrace(null);
+        setLog((l) => [...d.compare!.traces, ...l].slice(0, 50));
+      } else if (d.trace) {
+        setTrace(d.trace);
+        setCompare(null);
+        setLog((l) => [d.trace!, ...l].slice(0, 50));
+      } else {
+        throw new Error(d.error ?? "empty response");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
-  }, [draft, experiment, provider]);
+  }, [draft, experiment, provider, isSupport]);
 
   const providerInfo = useMemo(() => providers.find((p) => p.name === provider), [providers, provider]);
-  const usingMock = provider === "mock";
+  const usingMock = !isSupport && provider === "mock";
 
   return (
     <div>
@@ -122,7 +146,7 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
         {hint && <div className="small muted" style={{ maxWidth: 420, textAlign: "right" }}>{hint}</div>}
       </header>
 
-      <div className="workspace">
+      <div className={`workspace ${isSupport ? "workspace-compare" : ""}`}>
         {/* ---- Examples ---- */}
         <section className="panel">
           <div className="panel-head">
@@ -143,18 +167,31 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
         {/* ---- Input ---- */}
         <section className="panel">
           <div className="panel-head panel-head-run">
-            <label className="judge-with">
-              <span>Judge with</span>
-              <select value={provider} onChange={(e) => setProvider(e.target.value)} aria-label="Judge with">
-                {providers.map((p) => (
-                  <option key={p.name} value={p.name} disabled={!p.configured || !p.enabled}>
-                    {p.label}{!p.configured ? " — no key" : !p.enabled ? " — disabled" : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {isSupport ? (
+              <div className="compare-arms">
+                <span className="eyebrow">Compare in parallel</span>
+                <div className="q-chips">
+                  {(compareArms.length ? compareArms : [{ name: "jev", label: "TypeSafe Jev", model: "…" } as ProviderInfo]).map((p) => (
+                    <span key={p.name} className={`q-chip ${p.name === "jev" ? "model" : "llm"}`}>
+                      {p.name === "jev" ? "Jev" : p.name === "openrouter-claude" ? "Claude" : p.name === "openrouter-gemini" ? "Gemini" : p.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <label className="judge-with">
+                <span>Judge with</span>
+                <select value={provider} onChange={(e) => setProvider(e.target.value)} aria-label="Judge with">
+                  {providers.map((p) => (
+                    <option key={p.name} value={p.name} disabled={!p.configured || !p.enabled}>
+                      {p.label}{!p.configured ? " — no key" : !p.enabled ? " — disabled" : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <button className="primary" onClick={run} disabled={busy || !draft}>
-              {busy ? "Running…" : "Run ▶"}
+              {busy ? (isSupport ? "Comparing…" : "Running…") : isSupport ? "Run compare ▶" : "Run ▶"}
             </button>
           </div>
           {usingMock && (
@@ -162,7 +199,12 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
               Mock heuristic — keyword rules with noise, <b>not a model</b>. Switch to TypeSafe Jev for real probabilities.
             </div>
           )}
-          {providerInfo && !usingMock && (
+          {isSupport && (
+            <div className="small muted provider-blurb">
+              Same ticket → Jev (direct) + Claude + Gemini (OpenRouter), in parallel. Code still owns the confidence gate and refund policy on each arm.
+            </div>
+          )}
+          {!isSupport && providerInfo && !usingMock && (
             <div className="small muted provider-blurb">
               {providerInfo.kind} · <code>{providerInfo.model}</code> — {providerInfo.description}
             </div>
@@ -174,7 +216,10 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
         {/* ---- Result ---- */}
         <section className="panel result-col">
           <div className="panel-head">
-            <h3>Decision result</h3>
+            <h3>{isSupport ? "Compare result" : "Decision result"}</h3>
+            {compare && (
+              <span className="small muted mono">{compare.exampleId} · {compare.traces.length} arms</span>
+            )}
             {trace && (
               <span className="row" style={{ gap: 8 }}>
                 <span className="small muted mono">{trace.exampleId} · {trace.provider}</span>
@@ -182,7 +227,17 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
               </span>
             )}
           </div>
-          {trace ? <ResultPanel trace={trace} /> : <div className="result-empty">Select an example and run — judgments first, then code decides the route.</div>}
+          {compare ? (
+            <CompareResultPanel compare={compare} />
+          ) : trace ? (
+            <ResultPanel trace={trace} />
+          ) : (
+            <div className="result-empty">
+              {isSupport
+                ? "Pick a ticket and run compare — Jev, Claude, and Gemini answer the same questions."
+                : "Select an example and run — judgments first, then code decides the route."}
+            </div>
+          )}
         </section>
       </div>
 
@@ -194,11 +249,18 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
           </div>
           <table className="data">
             <thead>
-              <tr><th>example</th><th>provider</th><th>decision</th><th>expected</th><th>conf</th><th>route</th><th>ms</th></tr>
+              <tr><th>example</th><th>provider</th><th>decision</th><th>expected</th><th>conf</th><th>route</th><th>ms</th><th>cost</th></tr>
             </thead>
             <tbody>
               {log.map((t, i) => (
-                <tr key={i} onClick={() => setTrace(t)} style={{ cursor: "pointer" }}>
+                <tr
+                  key={i}
+                  onClick={() => {
+                    setTrace(t);
+                    setCompare(null);
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
                   <td className="mono">{t.exampleId}</td>
                   <td>{t.provider}</td>
                   <td>{t.outcome.decision}</td>
@@ -206,6 +268,7 @@ export function ExperimentShell({ experiment, title, subtitle, hint }: Props) {
                   <td className="num">{t.outcome.confidence.toFixed(2)}</td>
                   <td><RouteBadge route={t.outcome.route} /></td>
                   <td className="num">{t.response.latencyMs.toFixed(0)}</td>
+                  <td className="num">{t.response.estimatedCostUsd === null ? "n/a" : `$${t.response.estimatedCostUsd.toFixed(5)}`}</td>
                 </tr>
               ))}
             </tbody>

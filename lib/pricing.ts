@@ -32,9 +32,15 @@ const TABLE: Record<string, Price> = {
   "gpt-4o": { inputPerMillion: 2.5, outputPerMillion: 10, source: "openai pricing (approx)" },
   "gpt-4.1-mini": { inputPerMillion: 0.4, outputPerMillion: 1.6, source: "openai pricing (approx)" },
   "claude-haiku-4-5": { inputPerMillion: 1, outputPerMillion: 5, source: "anthropic pricing (approx)" },
+  "claude-haiku-4.5": { inputPerMillion: 1, outputPerMillion: 5, source: "anthropic pricing (approx)" },
+  "anthropic/claude-haiku-4.5": { inputPerMillion: 1, outputPerMillion: 5, source: "openrouter (approx)" },
+  "anthropic/claude-3.5-haiku": { inputPerMillion: 0.8, outputPerMillion: 4, source: "openrouter (approx)" },
   "claude-sonnet-4-5": { inputPerMillion: 3, outputPerMillion: 15, source: "anthropic pricing (approx)" },
+  "anthropic/claude-sonnet-4.5": { inputPerMillion: 3, outputPerMillion: 15, source: "openrouter (approx)" },
   "gemini-2.0-flash": { inputPerMillion: 0.1, outputPerMillion: 0.4, source: "google pricing (approx)" },
+  "google/gemini-2.0-flash": { inputPerMillion: 0.1, outputPerMillion: 0.4, source: "openrouter (approx)" },
   "gemini-2.5-flash": { inputPerMillion: 0.3, outputPerMillion: 2.5, source: "google pricing (approx)" },
+  "google/gemini-2.5-flash": { inputPerMillion: 0.3, outputPerMillion: 2.5, source: "openrouter (approx)" },
 
   // The mock is free — it's a heuristic, not a model.
   mock: { inputPerMillion: 0, outputPerMillion: 0, source: "n/a" },

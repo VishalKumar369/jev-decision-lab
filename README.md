@@ -28,7 +28,7 @@ cp .env.example .env.local     # add TYPESAFE_API_KEY; DEFAULT_PROVIDER=jev
 npm run dev                    # http://localhost:3000
 ```
 
-With `TYPESAFE_API_KEY` set, the UI defaults to **TypeSafe Jev (direct)** — keys stay server-side only, never in frontend code or git. No key? Switch the provider picker to `mock` (keyword heuristics, deliberately mediocre, not a model) to explore the pipeline offline.
+With `TYPESAFE_API_KEY` and `OPENROUTER_API_KEY` set, **Support Pipeline** runs Jev (direct) + Claude + Gemini (via OpenRouter) in parallel on every ticket — latency, tokens, and estimated cost are shown side by side. Keys stay server-side only, never in frontend code or git. No key? Switch other experiments to `mock` to explore offline.
 
 ```bash
 npm run bench -- --provider mock,jev    # datasets through each provider, JSON + CSV in results/

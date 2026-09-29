@@ -246,7 +246,10 @@ async function geminiGenerate(apiKey: string, model: string, system: string, use
 // Public entry point
 // ---------------------------------------------------------------------------
 
-export async function callLlmEmulator(provider: Exclude<ProviderName, "mock" | "jev" | "openrouter-jev" | "vercel-jev">, req: DecisionRequest): Promise<DecisionResponse> {
+export async function callLlmEmulator(
+  provider: Exclude<ProviderName, "mock" | "jev" | "openrouter-jev" | "vercel-jev">,
+  req: DecisionRequest,
+): Promise<DecisionResponse> {
   const { system, user } = buildEmulatorPrompt(req);
   const started = performance.now();
   let result: ChatResult;
@@ -260,10 +263,17 @@ export async function callLlmEmulator(provider: Exclude<ProviderName, "mock" | "
       result = await openAiCompatible("https://api.openai.com/v1", key, priceModel, system, user);
       break;
     }
-    case "openrouter-llm": {
+    case "openrouter-llm":
+    case "openrouter-claude":
+    case "openrouter-gemini": {
       const key = config.openrouter.apiKey();
       if (!key) throw new Error("OPENROUTER_API_KEY is not set");
-      priceModel = config.openrouter.llmModel();
+      priceModel =
+        provider === "openrouter-claude"
+          ? config.openrouter.claudeModel()
+          : provider === "openrouter-gemini"
+            ? config.openrouter.geminiModel()
+            : config.openrouter.llmModel();
       result = await openAiCompatible("https://openrouter.ai/api/v1", key, priceModel, system, user, {
         "HTTP-Referer": "https://github.com/bytemonk/jev-decision-lab",
         "X-Title": "jev-decision-lab",

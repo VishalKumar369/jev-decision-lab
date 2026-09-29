@@ -141,6 +141,16 @@ button, select, textarea, input { font: inherit; color: inherit; }
     radial-gradient(700px 380px at -10% 110%, rgba(168, 85, 247, 0.04), transparent 50%),
     var(--bg);
 }
+
+/* Support Pipeline: lock to one viewport, no page scroll */
+.main:has(.support-screen) {
+  padding: 20px 24px 20px;
+  max-width: none;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 .page-head { margin-bottom: 20px; }
 .page-head p { color: var(--text-2); margin-top: 6px; max-width: 760px; }
 
@@ -369,6 +379,46 @@ table.data tbody tr:hover { background: var(--surface-2); }
   border-color: color-mix(in srgb, var(--owner-model) 40%, transparent);
   background: color-mix(in srgb, var(--owner-model) 10%, transparent);
 }
+.q-chip.llm {
+  color: var(--text-2);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+.compare-arms { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
+
+/* ---------- support compare grid ---------- */
+.workspace-compare { grid-template-columns: 200px minmax(280px, 0.9fr) minmax(520px, 1.6fr); }
+@media (max-width: 1180px) {
+  .workspace-compare { grid-template-columns: 200px 1fr; }
+}
+.compare-body { gap: 16px; }
+.compare-summary { margin-bottom: 4px; }
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .compare-grid { grid-template-columns: 1fr; }
+}
+.compare-arm {
+  display: flex; flex-direction: column; gap: 12px; padding: 12px;
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface-2); border-top: 2px solid var(--arm-accent, var(--border-strong));
+  min-width: 0;
+}
+.compare-arm-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.compare-arm-title { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
+.compare-metrics {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+.compare-metric {
+  padding: 7px 9px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface);
+}
+.compare-metric .k { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.compare-metric .v { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 1px; overflow-wrap: anywhere; }
+.compare-metric.emphasize .v { color: var(--text); font-size: 14px; }
 
 /* ---------- calibration ---------- */
 .empty-state { padding: 64px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }

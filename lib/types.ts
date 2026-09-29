@@ -137,6 +137,8 @@ export type ProviderName =
   | "openrouter-jev" // Jev via OpenRouter decisions endpoint
   | "vercel-jev" // Jev via Vercel AI Gateway
   | "openrouter-llm" // any chat model via OpenRouter, emulating the contract
+  | "openrouter-claude" // Claude via OpenRouter (LLM emulator)
+  | "openrouter-gemini" // Gemini via OpenRouter (LLM emulator)
   | "openai"
   | "anthropic"
   | "google";
@@ -245,6 +247,17 @@ export interface PipelineTrace {
     expected: string | null;
   };
   response: DecisionResponse;
+}
+
+/**
+ * Support compare mode: one ticket, several providers in parallel.
+ * Each arm returns its own PipelineTrace so latency / tokens / cost stay honest.
+ */
+export interface CompareRunResult {
+  experiment: ExperimentName;
+  exampleId: string;
+  traces: PipelineTrace[];
+  errors: { provider: ProviderName; error: string }[];
 }
 
 // ---------------------------------------------------------------------------

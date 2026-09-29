@@ -69,6 +69,22 @@ const REGISTRY: Record<ProviderName, Entry> = {
     model: () => config.openrouter.llmModel(),
     call: (req) => callLlmEmulator("openrouter-llm", req),
   },
+  "openrouter-claude": {
+    kind: "llm-emulator",
+    label: "Claude via OpenRouter",
+    description: "Claude asked for the same typed JSON probabilities as Jev. Comparison arm for Support.",
+    configured: () => has("OPENROUTER_API_KEY"),
+    model: () => config.openrouter.claudeModel(),
+    call: (req) => callLlmEmulator("openrouter-claude", req),
+  },
+  "openrouter-gemini": {
+    kind: "llm-emulator",
+    label: "Gemini via OpenRouter",
+    description: "Gemini asked for the same typed JSON probabilities as Jev. Comparison arm for Support.",
+    configured: () => has("OPENROUTER_API_KEY"),
+    model: () => config.openrouter.geminiModel(),
+    call: (req) => callLlmEmulator("openrouter-gemini", req),
+  },
   openai: {
     kind: "llm-emulator",
     label: "OpenAI (emulating decisions)",
