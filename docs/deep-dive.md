@@ -92,6 +92,25 @@ Hand-labelled JSON in `datasets/`. Each row has an `id`, the input, a `labels` b
 
 The Agent Action Firewall **never executes anything**. `lib/simulated-tools.ts` returns descriptions of what *would* have happened. There is no shell, no filesystem write, no email, no database anywhere in the codebase.
 
+## Reading the code
+
+Read in this order. Each file builds on the one before it.
+
+1. `lib/types.ts`: the shared vocabulary. `DecisionRequest`, `DecisionResponse`, `DecisionProvider`, `MetricRecord`.
+2. `lib/policy-engine.ts`: every deterministic rule (confidence gate, refund policy, firewall checks, router tiers and budget). The most important file, and none of it is a model.
+3. `lib/experiments/support.ts`: one full pipeline: build the typed questions, call `provider.decide()`, apply policy, return a trace. `firewall.ts` and `router.ts` follow the same shape.
+4. `lib/jev.ts`: how the typed questions go over the wire to Jev and how the answers are normalised back.
+5. `lib/llm.ts`: the same contract asked of a chat model, including the JSON repair it sometimes needs.
+6. `lib/mock.ts`: the keyword heuristic, the code-only baseline.
+7. `lib/metrics.ts`: `MetricRecord` rows, summaries, calibration and ECE.
+8. `app/api/run/route.ts` and `components/ResultPanel.tsx`: how a click becomes a run and how the result is drawn.
+
+Then pick an exercise:
+
+- Add five rows to `datasets/support-tickets.json`, including one you think is ambiguous, and rerun the benchmark.
+- Change a threshold in `policy-engine.ts` (say `DEFAULT_GATE`) and watch the routes shift. Notice you didn't touch a prompt.
+- Add a provider: implement `DecisionProvider` and register it in `lib/providers.ts`. No experiment code changes.
+
 ## Project layout
 
 See [CLAUDE.md](../CLAUDE.md) for the layout and the design principles, and [architecture.md](architecture.md) for how the pieces fit.

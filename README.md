@@ -20,22 +20,68 @@ The skeptics were also right about something. Vendor benchmarks ("194x faster, 4
 
 That is what this lab is for. It puts Jev, plain code and general-purpose LLMs on the same typed contract, runs labelled data through all three, and lets you look at the distributions, the routes, the cost and the calibration yourself.
 
-## Quick start
+## Tech stack
+
+| Layer | Tech | Where |
+|---|---|---|
+| App + API routes | Next.js 15 (App Router), React 19 | `app/`, `components/` |
+| Language | TypeScript 5, strict | everywhere |
+| Logic | plain TypeScript, no React, no framework | `lib/` |
+| Model providers | raw `fetch` to TypeSafe Jev, OpenRouter, Vercel AI Gateway, OpenAI, Anthropic, Google | `lib/jev.ts`, `lib/llm.ts`, `lib/providers.ts` |
+| CLI scripts | `tsx` | `experiments/` |
+| Data | hand-labelled JSON in, JSON / CSV / JSONL out. No database. | `datasets/`, `results/` |
+
+## Setup guide
+
+**1. Prerequisites:** [Node.js](https://nodejs.org/) 20 or newer (22 LTS recommended; check with `node -v`) and Git. Nothing else: no database, no Docker.
+
+**2. Clone and install**
 
 ```bash
+git clone https://github.com/bytemonk-academy/jev-decision-lab.git
+cd jev-decision-lab
 npm install
-cp .env.example .env.local     # add TYPESAFE_API_KEY; DEFAULT_PROVIDER=jev
-npm run dev                    # http://localhost:3000
+cp .env.example .env.local
 ```
 
-With `TYPESAFE_API_KEY` and `OPENROUTER_API_KEY` set, **Support Pipeline** runs Jev (direct) + Claude + Gemini (via OpenRouter) in parallel on every ticket — latency, tokens, and estimated cost are shown side by side. Keys stay server-side only, never in frontend code or git. No key? Switch other experiments to `mock` to explore offline.
+**3. Keys (optional).** Every key is optional. With none, the lab runs on the built-in `mock` provider: keyword heuristics, deliberately mediocre, **not a model**. Learn the shape for free first, then add keys to `.env.local`:
+
+| To compare | Set |
+|---|---|
+| Jev, direct | `TYPESAFE_API_KEY` ([get one](https://console.typesafe.ai/keys)) |
+| Jev or any chat model through one key | `OPENROUTER_API_KEY` |
+| Jev via Vercel | `AI_GATEWAY_API_KEY` |
+| General-purpose LLMs | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY` |
+
+With `TYPESAFE_API_KEY` and `OPENROUTER_API_KEY` set (and `DEFAULT_PROVIDER=jev`), **Support Pipeline** runs Jev (direct) + Claude + Gemini (via OpenRouter) in parallel on every ticket, with latency, tokens and estimated cost side by side. Keys stay server-side only, never in frontend code or git. `ENABLED_PROVIDERS` limits which providers the UI can call, so a stray click can't spend money on a big model.
+
+**4. Run the lab**
+
+```bash
+npm run dev          # http://localhost:3000
+```
+
+Open **Support Pipeline**, pick an example on the left, and run it. With no keys, switch to `mock`. You should see a probability distribution, a route and a policy result. That's a working setup.
+
+**5. Run the benchmarks (terminal)**
 
 ```bash
 npm run bench -- --provider mock,jev    # datasets through each provider, JSON + CSV in results/
 npm run calibration                     # reliability tables, ECE, Brier
 npm run cost                            # $ per decision, $ per 1M decisions
 npm run latency -- --provider jev       # percentiles, batched vs sequential
+npm run typecheck                       # sanity check after you change code
 ```
+
+## Follow along
+
+1. **Support Pipeline on `mock`.** See the flow: model judgment → confidence gate → policy → action. Note which steps are violet (model) and which are cyan (code).
+2. **Same examples on `jev`.** Compare distributions, confidence and latency against the heuristic.
+3. **Add one LLM** (`openai` or `anthropic`) and run the same examples. Same typed contract, so watch cost, latency and JSON repairs.
+4. **Agent Firewall.** Static checks veto first; see what only the semantic check catches. Nothing ever executes.
+5. **Model Router.** Does the routing call cost less than the cheapest tier it routes to?
+6. **Calibration Lab.** Hit **Run dataset** for each provider (or use `npm run bench`) and check: when a provider says 0.8, is it right 80% of the time?
+7. **Read the code** in the order given in the [deep dive](docs/deep-dive.md#reading-the-code).
 
 ## Experiments
 
