@@ -23,11 +23,14 @@ interface Payload {
 
 type Experiment = "support";
 
+/** Only these providers are offered in the dropdown; the rest are blocked. */
+const VISIBLE_PROVIDERS: ProviderInfo["name"][] = ["jev", "openrouter-claude", "openrouter-gemini"];
+
 export function CalibrationLab() {
   const [data, setData] = useState<Payload | null>(null);
   const [bins, setBins] = useState(10);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
-  const [provider, setProvider] = useState("mock");
+  const [provider, setProvider] = useState("jev");
   const [experiment] = useState<Experiment>("support");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -41,7 +44,7 @@ export function CalibrationLab() {
     load();
     fetch("/api/providers").then((r) => r.json()).then((d: { providers: ProviderInfo[]; defaultProvider: string }) => {
       setProviders(d.providers);
-      setProvider(d.defaultProvider);
+      setProvider(VISIBLE_PROVIDERS.includes(d.defaultProvider as ProviderInfo["name"]) ? d.defaultProvider : "jev");
     });
   }, [load]);
 
@@ -80,9 +83,9 @@ export function CalibrationLab() {
   const controls = (
     <div className="row" style={{ gap: 8 }}>
       <select value={provider} onChange={(e) => setProvider(e.target.value)} aria-label="Provider">
-        {providers.map((p) => (
-          <option key={p.name} value={p.name} disabled={!p.configured || !p.enabled}>
-            {p.label}{!p.configured ? " — no key" : ""}
+        {providers.filter((p) => VISIBLE_PROVIDERS.includes(p.name)).map((p) => (
+          <option key={p.name} value={p.name}>
+            {p.label}
           </option>
         ))}
       </select>

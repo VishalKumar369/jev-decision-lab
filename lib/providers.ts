@@ -39,7 +39,7 @@ const REGISTRY: Record<ProviderName, Entry> = {
   },
   jev: {
     kind: "decision-model",
-    label: "TypeSafe Jev (direct)",
+    label: "TypeSafe Jev",
     description: "POST api.typesafe.ai/v1/systemone. Calibrated probabilities over answers you define. ~100 ms, $0.042/1M input, output free.",
     configured: () => has("TYPESAFE_API_KEY"),
     model: () => config.typesafe.model(),
@@ -71,7 +71,7 @@ const REGISTRY: Record<ProviderName, Entry> = {
   },
   "openrouter-claude": {
     kind: "llm-emulator",
-    label: "Claude via OpenRouter",
+    label: "Claude",
     description: "Claude asked for the same typed JSON probabilities as Jev. Comparison arm for Support.",
     configured: () => has("OPENROUTER_API_KEY"),
     model: () => config.openrouter.claudeModel(),
@@ -79,7 +79,7 @@ const REGISTRY: Record<ProviderName, Entry> = {
   },
   "openrouter-gemini": {
     kind: "llm-emulator",
-    label: "Gemini via OpenRouter",
+    label: "Gemini",
     description: "Gemini asked for the same typed JSON probabilities as Jev. Comparison arm for Support.",
     configured: () => has("OPENROUTER_API_KEY"),
     model: () => config.openrouter.geminiModel(),

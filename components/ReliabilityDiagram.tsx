@@ -18,6 +18,20 @@
 import { useEffect, useState } from "react";
 import type { CalibrationReport } from "@/lib/metrics";
 
+/** Fixed identity per provider: Jev white, Claude orange, Gemini blue. */
+const PROVIDER_STYLE: Record<string, { label: string; color: string }> = {
+  jev: { label: "Jev", color: "var(--text)" },
+  "openrouter-claude": { label: "Claude", color: "#d97757" },
+  "openrouter-gemini": { label: "Gemini", color: "var(--blue)" },
+};
+
+function styleFor(group: string, i: number): { label: string; color: string } {
+  const [provider, ...rest] = group.split(" / ");
+  const known = PROVIDER_STYLE[provider];
+  if (!known) return { label: group, color: SLOTS[i % SLOTS.length] };
+  return { label: rest.length ? `${known.label} / ${rest.join(" / ")}` : known.label, color: known.color };
+}
+
 const SLOTS = ["var(--violet)", "var(--cyan)", "var(--orange)", "var(--green)", "var(--red)", "var(--purple)", "var(--blue)", "var(--text-2)"];
 
 export function ReliabilityDiagram({ reports }: { reports: { group: string; calibration: CalibrationReport }[] }) {
@@ -70,7 +84,7 @@ export function ReliabilityDiagram({ reports }: { reports: { group: string; cali
         </text>
 
         {reports.map((r, i) => {
-          const color = SLOTS[i % SLOTS.length];
+          const { label, color } = styleFor(r.group, i);
           const pts = r.calibration.buckets.filter((b) => b.n > 0);
           const path = pts.map((b, j) => `${j ? "L" : "M"}${sx(b.meanConfidence)},${sy(b.empiricalAccuracy)}`).join(" ");
           return (
@@ -88,7 +102,7 @@ export function ReliabilityDiagram({ reports }: { reports: { group: string; cali
                   opacity="0.9"
                   suppressHydrationWarning
                 >
-                  <title>{`${r.group}\nbucket ${b.lo.toFixed(1)}–${b.hi.toFixed(1)}  n=${b.n}\nmean conf ${b.meanConfidence.toFixed(3)}\naccuracy ${b.empiricalAccuracy.toFixed(3)}\ngap ${b.gap.toFixed(3)}`}</title>
+                  <title>{`${label}\nbucket ${b.lo.toFixed(1)}–${b.hi.toFixed(1)}  n=${b.n}\nmean conf ${b.meanConfidence.toFixed(3)}\naccuracy ${b.empiricalAccuracy.toFixed(3)}\ngap ${b.gap.toFixed(3)}`}</title>
                 </circle>
               ))}
               {pts.length > 0 && (
@@ -99,7 +113,7 @@ export function ReliabilityDiagram({ reports }: { reports: { group: string; cali
                   fill="var(--text-2)"
                   suppressHydrationWarning
                 >
-                  {r.group}
+                  {label}
                 </text>
               )}
             </g>
@@ -109,8 +123,8 @@ export function ReliabilityDiagram({ reports }: { reports: { group: string; cali
       <div className="row small">
         {reports.map((r, i) => (
           <span key={r.group} className="row" style={{ gap: 6 }}>
-            <span className="reliability-legend-swatch" style={{ background: SLOTS[i % SLOTS.length] }} />
-            {r.group} <span className="muted">ECE {r.calibration.ece.toFixed(3)} · n={r.calibration.n}</span>
+            <span className="reliability-legend-swatch" style={{ background: styleFor(r.group, i).color }} />
+            {styleFor(r.group, i).label} <span className="muted">ECE {r.calibration.ece.toFixed(3)} · n={r.calibration.n}</span>
           </span>
         ))}
       </div>
