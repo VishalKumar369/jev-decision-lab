@@ -102,8 +102,3 @@ One interface, swap by env var: TypeSafe Jev direct, and Claude / Gemini via Ope
 - [Experiments guide](docs/experiments.md): which examples to try and what to look for
 - [CLAUDE.md](CLAUDE.md): design principles for anyone (human or AI) changing the code
 
-## Safety
-
-Keys stay server-side. Support compare never executes real side effects — refund / routing actions are simulated.
-
-MIT. Teach with it, fork it, break it.
