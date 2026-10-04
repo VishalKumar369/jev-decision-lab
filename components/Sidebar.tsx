@@ -46,10 +46,10 @@ export function Sidebar() {
       <div className="brand">
         {/* Plain img avoids next/image inline styles that browser extensions mutate before hydrate. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/bytemonk-logo.png" alt="ByteMonk" width={32} height={32} className="brand-logo" />
+        {/* <img src="/bytemonk-logo.png" alt="ByteMonk" width={32} height={32} className="brand-logo" /> */}
         <div className="brand-text">
           <span className="brand-name">Jev Decision Lab</span>
-          <span className="brand-by">by ByteMonk</span>
+          {/* <span className="brand-by">by ByteMonk</span> */}
         </div>
       </div>
       <nav className="navlist">

@@ -28,8 +28,8 @@ export const metadata: Metadata = {
       "Compare TypeSafe Jev with Claude and Gemini on the same support tickets — latency, tokens, cost, and calibrated probabilities.",
   },
   icons: {
-    icon: [{ url: "/bytemonk-logo.png", type: "image/png" }],
-    apple: [{ url: "/bytemonk-logo.png", type: "image/png" }],
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
 };
 

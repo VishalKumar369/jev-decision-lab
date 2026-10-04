@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Tab icon: a "J" whose stem forks into two branches — Jev making a decision. -->
+  <rect width="64" height="64" rx="14" fill="#7c5cff"/>
+  <g fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M38 12 V36 a10 10 0 0 1 -20 0"/>
+    <path d="M38 22 L50 12"/>
+  </g>
+  <circle cx="50" cy="12" r="4" fill="#22d3ee"/>
+</svg>
